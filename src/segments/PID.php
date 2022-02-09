@@ -2,13 +2,17 @@
 
 namespace mmerlijn\msgHl7\segments;
 
+use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Address;
+use mmerlijn\msgRepo\Enums\PatientSexEnum;
 use mmerlijn\msgRepo\Id;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
 
 class PID extends Segment implements SegmentInterface
 {
+    public string $name = "PID";
+
     public function setMsg(Msg $msg): void
     {
         //set patient identifier
@@ -34,7 +38,7 @@ class PID extends Segment implements SegmentInterface
         $this->setData($msg->patient->dob?->format("Ymd"), 7);
 
         //set sex
-        $this->setData($msg->patient->sex, 8);
+        $this->setData($msg->patient->sex->value, 8);
 
         //set address
         $this->setData($msg->patient->address->street . " " . $msg->patient->address->building, 11);
@@ -79,15 +83,23 @@ class PID extends Segment implements SegmentInterface
         }
         //get name
         $msg->patient->setName(
-            new Name(initials: $this->getInitials(),
+            new Name(
+                initials: $this->getInitials(),
                 lastname: $this->getData(5, 0, 0, 4),
                 own_lastname: $this->getData(5, 0, 0, 2),
                 prefix: $this->getData(5, 0, 0, 3),
                 own_prefix: $this->getData(5, 0, 0, 1),
             ));
         if (!$msg->patient->name->own_lastname) {
-            $msg->patient->setName(new Name(name: $this->getData(5)));
+            $msg->patient->setName(new Name(
+                name: $this->getData(5),
+                initials: $this->getInitials()
+            ));
         }
+        //get dob
+        $msg->patient->dob = $this->getDate(7);
+        //get sex
+        $msg->patient->sex = PatientSexEnum::set($this->getData(8));
         //get address
         $msg->patient->setAddress(new Address(
             street: $this->getData(11, 0, 0, 1),
@@ -137,6 +149,35 @@ class PID extends Segment implements SegmentInterface
         }
         return $first_name . $initials;
 
+    }
+
+    public function validate(): void
+    {
+        Validator::validate([
+            "patient_identifier" => $this->data[3][0][0][0] ?? "",
+            "patient_name" => $this->data[5][0][0][0] ?? "",
+            "patient_dob" => $this->data[7][0][0][0] ?? "",
+            "patient_sex" => $this->data[8][0][0][0] ?? "",
+            "patient_address" => $this->data[11][0][0][0] ?? "",
+            "patient_postcode" => $this->data[11][0][4][0] ?? "",
+            "patient_city" => $this->data[11][0][2][0] ?? "",
+        ], [
+            "patient_identifier" => 'required',
+            "patient_name" => 'required',
+            "patient_dob" => 'required',
+            "patient_sex" => 'required',
+            "patient_address" => 'required',
+            "patient_postcode" => 'required',
+            "patient_city" => 'required',
+        ], [
+            "patient_identifier" => '@ PID[3][0][0][0] set/adjust $msg->patient->ids',
+            "patient_name" => '@ PID[5][0][0][0] set/adjust $msg->patient->name',
+            "patient_dob" => '@ PID[7][0][0][0] set/adjust $msg->patient->dob',
+            "patient_sex" => '@ PID[8][0][0][0] set/adjust $msg->patient->sex',
+            "patient_address" => '@ PID[11][0][0][0] set/adjust $msg->patient->address',
+            "patient_postcode" => '@ PID[11][0][4][0] set/adjust $msg->patient->postcode',
+            "patient_city" => '@ PID[11][0][2][0] set/adjust $msg->patient->city',
+        ]);
     }
 }
 

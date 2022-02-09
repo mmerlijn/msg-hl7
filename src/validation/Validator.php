@@ -93,4 +93,12 @@ class Validator
         }
         return false;
     }
+
+    public static function numeric($value, $param): bool
+    {
+        if (is_numeric($value)) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -21,7 +21,7 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $orc = new ORC("ORC|NW|ZD12345678||ZD12345678|||^^^^^R||20220102103000+0200|^Doe^J.||01123456^van der Plas^B.^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS");
         $msg = $orc->getMsg(new Msg());
         $this->assertSame("ZD12345678", $msg->order->request_nr);
-        $this->assertSame("NEW", $msg->order->control);
+        $this->assertSame("NEW", $msg->order->control->value);
         $this->assertSame("2022-01-02 10:30:00", $msg->order->dt_of_request->format("Y-m-d H:i:s"));
         $this->assertSame('Plas', $msg->order->requester->name->own_lastname);
         $this->assertSame('B', $msg->order->requester->name->initials);
@@ -55,9 +55,9 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $msg->order->dt_of_request = Carbon::create("2022-01-02 09:30:00");
         $msg->order->requester->agbcode = "05123456";
         $msg->order->requester->setName(new Name(name: "de Groot", initials: "K.F."));
-        $orc->setMsg($msg);
+        $orc = $orc->setOrder($msg);
 
-        $this->assertStringContainsString("|NW|AB12341234||AB12341234|", $orc->write());
+        $this->assertStringContainsString("NW|AB12341234||AB12341234|", $orc->write());
         $this->assertStringContainsString("||^^^^^R||", $orc->write());
         $this->assertStringContainsString(Carbon::create("2022-01-02 09:30:00")->format("YmdHisO"), $orc->write());
         $this->assertStringContainsString("|05123456^de Groot^KF", $orc->write());
@@ -70,13 +70,13 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $msg = new Msg();
         $msg->order->priority = false;
         $orc = new ORC();
-        $orc->setMsg($msg);
-        $this->assertStringContainsString("||^^^^^R||", $orc->write());
+        $orc = $orc->setOrder($msg);
+        $this->assertStringContainsString("||^^^^^R", $orc->write());
 
         $msg = new Msg();
         $msg->order->priority = true;
         $orc = new ORC();
-        $orc->setMsg($msg);
-        $this->assertStringContainsString("||^^^^^C||", $orc->write());
+        $orc = $orc->setOrder($msg);
+        $this->assertStringContainsString("||^^^^^C", $orc->write());
     }
 }

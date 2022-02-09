@@ -2,11 +2,13 @@
 
 namespace mmerlijn\msgHl7\segments;
 
+use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Insurance;
 use mmerlijn\msgRepo\Msg;
 
 class IN1 extends Segment implements SegmentInterface
 {
+    public string $name = "IN1";
 
     public function getMsg(Msg $msg): Msg
     {
@@ -30,5 +32,19 @@ class IN1 extends Segment implements SegmentInterface
             }
 
         }
+    }
+
+    public function validate(): void
+    {
+        Validator::validate([
+            "id" => $this->data[1][0][0][0] ?? "",
+            //       "insurance_company" => $this->data[2][0][0][0] ?? "",
+        ], [
+            "id" => 'required|numeric',
+            //       "insurance_company" => 'required',
+        ], [
+            "id" => '@ IN1[1][0][0][0] bugfix IN1 segment',
+            //       "insurance_company" => '@ IN1[2][0][0][0] set/adjust  $msg->patient->insurance',
+        ]);
     }
 }

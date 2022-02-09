@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mmerlijn/msg-repo.git",
-                "reference": "9a6750c659828bb000b791b7e25397ff22727ee1"
+                "reference": "7b82fae1d0f21d70307eac788b6ac6588b3b3412"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mmerlijn/msg-repo/zipball/9a6750c659828bb000b791b7e25397ff22727ee1",
-                "reference": "9a6750c659828bb000b791b7e25397ff22727ee1",
+                "url": "https://api.github.com/repos/mmerlijn/msg-repo/zipball/7b82fae1d0f21d70307eac788b6ac6588b3b3412",
+                "reference": "7b82fae1d0f21d70307eac788b6ac6588b3b3412",
                 "shasum": ""
             },
             "require": {
@@ -49,7 +49,7 @@
                 "issues": "https://github.com/mmerlijn/msg-repo/issues",
                 "source": "https://github.com/mmerlijn/msg-repo/tree/master"
             },
-            "time": "2022-01-27T23:09:52+00:00"
+            "time": "2022-02-09T09:55:35+00:00"
         },
         {
             "name": "nesbot/carbon",

@@ -6,6 +6,7 @@ use mmerlijn\msgRepo\Msg;
 
 class PV2 extends Segment implements SegmentInterface
 {
+    public string $name = "PV2";
 
     public function getMsg(Msg $msg): Msg
     {

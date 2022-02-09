@@ -5,6 +5,10 @@ namespace mmerlijn\msgHl7;
 use mmerlijn\msgHl7\helpers\Encoding;
 use mmerlijn\msgHl7\segments\IN1;
 use mmerlijn\msgHl7\segments\MSH;
+use mmerlijn\msgHl7\segments\NTE;
+use mmerlijn\msgHl7\segments\OBR;
+use mmerlijn\msgHl7\segments\OBX;
+use mmerlijn\msgHl7\segments\ORC;
 use mmerlijn\msgHl7\segments\PID;
 use mmerlijn\msgHl7\segments\PV1;
 use mmerlijn\msgHl7\segments\PV2;
@@ -17,6 +21,8 @@ class Hl7
     private string $msg = "";
     public string $type = "ORM";
     public array $segments = [];
+    public bool $repeat_ORC = false;
+    public string $datetime_format = "YmdHisO";
 
     public function __construct(string $hl7 = "")
     {
@@ -24,6 +30,18 @@ class Hl7
             $this->msg = $hl7;
             $this->buildSegments();
         }
+        return $this;
+    }
+
+    public function setRepeatORC(bool $bool = true)
+    {
+        $this->repeat_ORC = $bool;
+        return $this;
+    }
+
+    public function setDatetimeFormat(string $format): self
+    {
+        $this->datetime_format = $format;
         return $this;
     }
 
@@ -46,7 +64,7 @@ class Hl7
             $output .= $segment->write() . chr(13);
         }
         if (Validator::fails()) {
-            throw new \Exception("Edifact validation fails: " . PHP_EOL . implode(PHP_EOL, Validator::getErrors()));
+            throw new \Exception("HL7 validation fails: " . PHP_EOL . implode(PHP_EOL, Validator::getErrors()));
         }
         return $output;
     }
@@ -62,40 +80,55 @@ class Hl7
     public function setMsg(Msg $msg): self
     {
         $this->type = $msg->msgType->type ?: "ORM";
-
         if (empty($this->segments)) {
             $this->createDefaultSegments();
         }
+        //for storing present data
+        $orc_line = "";
+        $obr_line = [];
+        //remove order segments and set msg
         foreach ($this->segments as $k => $segment) {
-            $this->segments[$k]->setMsg($msg);
+            if (in_array($segment->name, ["ORC", "OBR", "OBX", "NTE"])) {
+                if ($segment->name == "ORC") { //store present data ORC
+                    $orc_line = $segment->line;
+                }
+                if ($segment->name == "OBR") { //store present data OBR
+                    $obr_line[$segment->getData(4)] = $segment->line;
+                }
+                unset($this->segments[$k]);
+            } else {
+                $this->segments[$k]->setDatetimeFormat($this->datetime_format)->setMsg($msg);
+            }
         }
-        //set results
-        //if (!empty($msg->order->results)) {
-        //    $teller_BEP = 1;
-        //    $teller_NUB = 1;
-        //    foreach ($msg->order->results as $k => $result) {
-        //        if ($result->done) {
-        //            array_splice($this->segments, $this->findSegmentKey("IDE") + 1, 0, [(new BEP("BEP:1:1:$teller_BEP"))->setResult($result)]);
-        //            $teller_OPB = 1;
-        //            foreach ($result->comments as $comment) {
-        //                array_splice($this->segments, $this->findSegmentKey("BEP") + 1, 0, [(new OPB("OPB:1:1:$teller_BEP:$teller_OPB"))->setComment($comment)]);
-        //                $teller_OPB++;
-        //            }
-        //            $teller_BEP++;
-        //        } else {
-        //            array_splice($this->segments, $this->findSegmentKey("UNT"), 0, [(new NUB("NUB:1:$teller_NUB+"))->setResult($result)]);
-        //            $teller_NUB++;
-        //        }
-        //    }
-        //}
-        //zet comments
-        //if (!empty($msg->comments)) {
-        //    $teller_TXT = 1;
-        //    foreach ($msg->comments as $comment) {
-        //        array_splice($this->segments, $this->findSegmentKey("GGO"), 0, [(new TXT("TXT:$teller_TXT"))->setComment($comment)]);
-        //        $teller_TXT++;
-        //    }
-        //}
+        $this->segments = array_values($this->segments);
+        if (!empty($msg->order->requests)) {
+            $orc_done = false;
+            foreach ($msg->order->requests as $k => $request) {
+                if ($this->repeat_ORC or $orc_done == false) {
+                    $this->segments[] = (new ORC($orc_line))->setDatetimeFormat($this->datetime_format)->setOrder($msg);
+                    $orc_done = true;
+                }
+                $this->segments[] = (new OBR($obr_line[$request->test_code] ?? ""))->setDatetimeFormat($this->datetime_format)->setRequest($msg, $k);
+                foreach ($msg->order->results as $k2 => $result) {
+                    $this->segments[] = (new OBX())->setDatetimeFormat($this->datetime_format)->setResults($msg, $k2);
+                    if (!empty($result->comments)) {
+                        foreach ($result->comments as $id => $comment) {
+                            $this->segments[] = (new NTE())->setComment($id, $comment);
+                        }
+                    }
+                }
+                if (!empty($request->comments)) {
+                    foreach ($request->comments as $id => $comment) {
+                        $this->segments[] = (new NTE())->setComment($id, $comment);
+                    }
+                }
+            }
+        }
+        if (!empty($msg->comments)) {
+            foreach ($msg->comments as $id => $comment) {
+                $this->segments[] = (new NTE())->setComment($id, $comment);
+            }
+        }
         return $this;
     }
 
@@ -138,17 +171,17 @@ class Hl7
         }
     }
 
+
     //MEDLAB
     protected function createDefaultSegments()
     {
         if ($this->type == "ORM") {
             $this->segments = [
-                new MSH("MSH|DEFAULT||||||||ORM^O01^ORM_O01||P|2.4|||||NLD|8859/1"),
-                new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD"),
-                new PV1("PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V"),
-                new PV2("PV2|||"),
-                new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||")
-
+                (new MSH("MSH|DEFAULT||||||||ORM^O01^ORM_O01||P|2.4|||||NLD|8859/1"))->setDatetimeFormat($this->datetime_format),
+                (new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD"))->setDatetimeFormat($this->datetime_format),
+                (new PV1("PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V"))->setDatetimeFormat($this->datetime_format),
+                (new PV2("PV2|||"))->setDatetimeFormat($this->datetime_format),
+                (new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||"))->setDatetimeFormat($this->datetime_format),
             ];
         } elseif ($this->type == "") {
             $this->segments = [

@@ -3,6 +3,7 @@
 namespace mmerlijn\msgHl7\segments;
 
 
+use Carbon\Carbon;
 use mmerlijn\msgRepo\Msg;
 
 class Segment implements SegmentInterface
@@ -11,6 +12,7 @@ class Segment implements SegmentInterface
 
     public string $name;    //name of the segment
     public array $data;     //data of the segment (multi dimensional)
+    public string $datatime_format = "YmdHisO";
 
     public function __construct(public string $line = "")
     {
@@ -18,6 +20,8 @@ class Segment implements SegmentInterface
         if ($line) {
             $this->setName();
             $this->lineToFields();
+        } else {
+            $this->setData($this->name ?? "", 0); //set segment name
         }
         return $this;
     }
@@ -39,13 +43,13 @@ class Segment implements SegmentInterface
             foreach ($i as $j) {
                 $components = [];
                 foreach ($j as $k) {
-                    $components[] = implode("&", $k);
+                    $components[] = preg_replace("/\.*(&*)$/", "", implode("&", $k));
                 }
-                $rep[] = implode("^", $components);
+                $rep[] = preg_replace("/\.*(\^*)$/", "", implode("^", $components));
             }
-            $fields[] = implode("~", $rep);
+            $fields[] = preg_replace("/\.*(~*)$/", "", implode("~", $rep));
         }
-        return implode("|", $fields);
+        return preg_replace("/\.*(\|*)$/", "", implode("|", $fields));
     }
 
     public function getMsg(Msg $msg): Msg
@@ -62,6 +66,12 @@ class Segment implements SegmentInterface
     {
     }
 
+    public function setDatetimeFormat(string $format): self
+    {
+        $this->datatime_format = $format;
+        return $this;
+    }
+
     public function setData(mixed $value, int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): self
     {
         if (!($this->data[$field][$repetition][$component][$subComponent] ?? false)) {
@@ -75,6 +85,17 @@ class Segment implements SegmentInterface
     public function getData(int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): string
     {
         return preg_replace('/\\\(\||~|\^|&)/', '$1', $this->data[$field][$repetition][$component][$subComponent] ?? "");
+    }
+
+    public function getDate(int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): ?Carbon
+    {
+        $date = $this->getData($field, $repetition, $component, $subComponent);
+        return match (strlen($date)) {
+            8 => Carbon::createFromFormat("Ymd", $date),
+            14 => Carbon::createFromFormat("YmdHis", $date),
+            19 => Carbon::createFromFormat("YmdHisO", $date),
+            default => null,
+        };
     }
 
     //Todo use Encoding
@@ -112,7 +133,10 @@ class Segment implements SegmentInterface
 
     protected function setName()
     {
-        $this->name = substr($this->line, 0, 3);
+        $name = substr($this->line, 0, 3);
+        if (!$this->name && $name) {
+            $this->name = $name;
+        }
     }
 
 

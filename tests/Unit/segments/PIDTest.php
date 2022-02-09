@@ -53,6 +53,10 @@ PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Doe - Testname&&T
         $this->assertSame("ZorgDomein", $msg->patient->ids[1]->authority);
         $this->assertSame("VN", $msg->patient->ids[1]->code);
 
+        //sex
+        $this->assertSame("M", $msg->patient->sex->value);
+        //dob
+        $this->assertSame("1980-06-23", $msg->patient->dob->format("Y-m-d"));
         //name
         $this->assertSame("Testname", $msg->patient->name->own_lastname);
         $this->assertSame("AB", $msg->patient->name->initials);

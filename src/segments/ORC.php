@@ -3,26 +3,19 @@
 namespace mmerlijn\msgHl7\segments;
 
 use Carbon\Carbon;
+use mmerlijn\msgHl7\validation\Validator;
+use mmerlijn\msgRepo\Enums\OrderControlEnum;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
 
 class ORC extends Segment implements SegmentInterface
 {
+    public string $name = "ORC";
 
     public function getMsg(Msg $msg): Msg
     {
         //order controe
-        switch ($this->getData(1)) {
-            case "NW":
-                $msg->order->control = "NEW";
-                break;
-            case "CA":
-                $msg->order->control = "CANCEL";
-                break;
-            case "XO":
-                $msg->order->control = "CHANGE";
-                break;
-        }
+        $msg->order->control = OrderControlEnum::set($this->getData(1));
         //requestnr
         $msg->order->request_nr = $this->getData(2);
         if (!$msg->order->request_nr) {
@@ -31,7 +24,8 @@ class ORC extends Segment implements SegmentInterface
         //priority
         $msg->order->priority = ($this->getData(7, 0, 5) == "R") ? false : true;
         //transaction datetime
-        $msg->order->dt_of_request = Carbon::createFromFormat("YmdHisO", $this->getData(9));
+        $msg->order->dt_of_request = $this->getDate(9);
+
         //ordering provider
         $msg->order->requester->agbcode = $this->getData(12);
         $msg->order->requester->setName(new Name(name: $this->getData(12, 0, 1), initials: $this->getData(12, 0, 2)));
@@ -39,29 +33,45 @@ class ORC extends Segment implements SegmentInterface
         return $msg;
     }
 
-    public function setMsg(Msg $msg): void
+    public function setOrder($msg): self
     {
         //order controle
-        if ($msg->order->control == "CANCEL") {
-            $this->setData("CA", 1);
-        } elseif ($msg->order->control == "CHANGE") {
-            $this->setData("XO", 1);
-        } else {
-            $this->setData("NW", 1);
-        }
+        $this->setData($msg->order->control->getHl7(), 1);
         //requestnr
         $this->setData($msg->order->request_nr, 2);
         $this->setData($msg->order->request_nr, 4);
         //priority
         $this->setData($msg->order->priority ? "C" : "R", 7, 0, 5);
         //transaction datetime
-        $this->setData($msg->order->dt_of_request?->format("YmdHisO"), 9);
+        $this->setData($msg->order->dt_of_request?->format($this->datatime_format), 9);
         //requester (ordering provider)
         $this->setData($msg->order->requester->agbcode, 12);
         $this->setData($msg->order->requester->name->getLastnames(), 12, 0, 1);
         $this->setData($msg->order->requester->name->initials, 12, 0, 2);
         $this->setData($msg->order->requester->source, 12, 0, 8);
+        return $this;
+    }
 
-
+    public function validate(): void
+    {
+        Validator::validate([
+            "order_controle" => $this->data[1][0][0][0] ?? "",
+            "order_request_nr" => $this->data[2][0][0][0] ?? "",
+            "order_request_nr2" => $this->data[2][0][0][0] ?? "",
+            "order_priority" => $this->data[7][0][5][0] ?? "",
+            "order_requester" => $this->data[12][0][1][0] ?? "",
+        ], [
+            "order_controle" => 'required',
+            "order_request_nr" => 'required',
+            "order_request_nr2" => 'required',
+            "order_priority" => 'required',
+            "order_requester" => 'required',
+        ], [
+            "order_controle" => '@ ORC[1][0][0][0] debug OBR',
+            "order_request_nr" => '@ ORC[2][0][0][0] set/adjust $msg->order->request_nr',
+            "order_request_nr2" => '@ ORC[4][0][0][0] set/adjust $msg->order->request_nr',
+            "order_priority" => '@ ORC[7][0][5][0] set/adjust $msg->order->priority',
+            "order_requester" => '@ ORC[12][0][1][0] set/adjust $msg->order->requester->name',
+        ]);
     }
 }
