@@ -35,7 +35,7 @@ IN1|1|^null|123^^^VEKTIS^UZOVI|Ditzo Zorgverzekering||||||||||||||||||||||||||||
 ORC|NW|ZD12345678||ZD12345678|||^^^^^R||20220102103000+0200|^Doe^J.||01123456^van der Plas^B.^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS
 OBR|1|ZD12345678||CRP^CRP^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKTIS
 OBX|1|ST|COVIDSYM^Covid-19 verdacht^99zdl||false||||||F
-OBX|2|CE|COVIDURG^Urgentie?^99zdl||true^Urgent (vandaag best effort NIET CITO)^99zda||||||F
+OBX|2|CE|COVIDURG^Urgentie?^99zdl||6 mnd^Binnen 6 mnd^99zda||||||F
 ORC|NW|ZD12345678||ZD12345678|||^^^^^R||20220102103000+0200|^Doe^J.||01123456^van der Plas^B.^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS
 OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKTIS
 ";
@@ -52,7 +52,7 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
         $this->assertStringContainsString("|^Doe^J||01123456^van der Plas", $string);
         $this->assertStringContainsString("||20220102103000|", $string);
 
-
+        var_dump($msg->toArray());
         //remove line below
         //$this->assertStringContainsString("||20220103000|", $string);
     }
