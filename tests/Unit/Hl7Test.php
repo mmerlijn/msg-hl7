@@ -56,4 +56,6 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
         //remove line below
         //$this->assertStringContainsString("||20220103000|", $string);
     }
+
+
 }

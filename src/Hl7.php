@@ -69,8 +69,11 @@ class Hl7
         return $output;
     }
 
-    public function getMsg(Msg $msg): Msg
+    public function getMsg(?Msg $msg = null): Msg
     {
+        if (!$msg) {
+            $msg = new Msg();
+        }
         foreach ($this->segments as $segment) {
             $msg = $segment->getMsg($msg);
         }

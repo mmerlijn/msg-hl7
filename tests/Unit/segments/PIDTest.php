@@ -98,4 +98,51 @@ PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Doe - Testname&&T
         $this->assertSame("NL", $msg->patient->address2->country);
 
     }
+
+    public function test_initials_same_as_name()
+    {
+        //firstname^initials
+        $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Klaas^klaas^^^^L||19800101|M|^^^^^^A||Straat^219^Amsterdam^^1040AB^NL||06-12345678
+");
+        $msg = $hl7->getMsg(new Msg());
+        $this->assertSame("K", $msg->patient->name->initials);
+    }
+
+    public function test_initials_different_from_name()
+    {
+        $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Klaas^B^^^^L||19800101|M|^^^^^^A||Straat^219^Amsterdam^^1040AB^NL||06-12345678
+");
+        $msg = $hl7->getMsg(new Msg());
+        $this->assertSame("KB", $msg->patient->name->initials);
+    }
+
+    public function test_initials_same_first_char()
+    {
+        $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^B^B^^^^L||19800101|M|^^^^^^A||Straat^219^Amsterdam^^1040AB^NL||06-12345678
+");
+        $msg = $hl7->getMsg(new Msg());
+        $this->assertSame("B", $msg->patient->name->initials);
+
+    }
+
+    public function test_name_initials_name_same_first_char_as_initial()
+    {
+        $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Bob^B^^^^L||19800101|M|^^^^^^A||Straat^219^Amsterdam^^1040AB^NL||06-12345678
+");
+        $msg = $hl7->getMsg(new Msg());
+        $this->assertSame("B", $msg->patient->name->initials);
+    }
+
+    public function test_name_initials_name_and_more_initial()
+    {
+        $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Bob^BR^^^^L||19800101|M|^^^^^^A||Straat^219^Amsterdam^^1040AB^NL||06-12345678
+");
+        $msg = $hl7->getMsg(new Msg());
+        $this->assertSame("BR", $msg->patient->name->initials);
+    }
 }

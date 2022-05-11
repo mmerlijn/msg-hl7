@@ -134,18 +134,25 @@ class PID extends Segment implements SegmentInterface
 
         $first_name = preg_replace('/\s|\./', "", $this->getData(5, 0, 1));
         $initials = preg_replace('/\s|\./', "", $this->getData(5, 0, 2));
-        if (strlen($first_name) > 1) {
+        if (mb_strlen($first_name) > 1) {
+
+            //look for initials written as name same as firstname
+            if (mb_strpos(mb_strtoupper($initials), mb_strtoupper($first_name)) !== false) {
+                //trim firstnames from initials
+                $initials = preg_replace('/' . $first_name . '/i', "", $initials);
+            }
             if (preg_match('/[a-z]/', $first_name[1])) {
                 $first_name = $first_name[0];
-                if ($initials[0] == $first_name[0]) {
-                    $initials = substr($initials, 1);
+                if (($initials[0] ?? "") == $first_name[0]) {
+                    $initials = mb_substr($initials, 1);
                 }
             } else {
                 if ($initials == $first_name) {
                     $first_name = "";
                 }
             }
-
+        } elseif (mb_strtoupper($first_name) == mb_strtoupper($initials)) {
+            $initials = "";
         }
         return $first_name . $initials;
 
