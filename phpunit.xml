@@ -4,7 +4,7 @@
          bootstrap="vendor/autoload.php"
          colors="true"
 >
-    <coverage processUncoveredFiles="true">
+    <coverage ignoreDeprecatedCodeUnits="true">
         <include>
             <directory suffix=".php">src/</directory>
         </include>
@@ -20,5 +20,7 @@
     <php>
         <ini name="max_execution_time" value="0"/>
         <ini name="memory_limit" value="-1"/>
+        <ini name="precision" value="14"/>
+        <ini name="serialize_precision" value="14"/>
     </php>
 </phpunit>

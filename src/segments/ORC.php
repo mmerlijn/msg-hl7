@@ -4,6 +4,7 @@ namespace mmerlijn\msgHl7\segments;
 
 use Carbon\Carbon;
 use mmerlijn\msgHl7\validation\Validator;
+use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Enums\OrderControlEnum;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
@@ -30,6 +31,7 @@ class ORC extends Segment implements SegmentInterface
         $msg->order->requester->agbcode = $this->getData(12);
         $msg->order->requester->setName(new Name(name: $this->getData(12, 0, 1), initials: $this->getData(12, 0, 2)));
         $msg->order->requester->source = $this->getData(12, 0, 8);
+        $msg->order->requester->location = $this->getData(13);
         return $msg;
     }
 
@@ -49,6 +51,7 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->requester->name->getLastnames(), 12, 0, 1);
         $this->setData($msg->order->requester->name->initials, 12, 0, 2);
         $this->setData($msg->order->requester->source, 12, 0, 8);
+        $this->setData($msg->order->requester->location, 13);
         return $this;
     }
 

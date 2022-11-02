@@ -103,7 +103,7 @@ class PID extends Segment implements SegmentInterface
         //get address
         $msg->patient->setAddress(new Address(
             street: $this->getData(11, 0, 0, 1),
-            postcode: $this->getData(11, 0, 4),
+            postcode: preg_replace('/\s/', '', $this->getData(11, 0, 4)),
             city: $this->getData(11, 0, 2),
             building: $this->getData(11, 0, 0, 2) . $this->getData(11, 0, 1),
             country: $this->getData(11, 0, 5),
