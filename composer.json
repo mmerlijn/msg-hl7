@@ -17,8 +17,7 @@
   },
   "require-dev": {
     "fakerphp/faker": "2.x-dev",
-    "pestphp/pest": "2.x-dev",
-    "phpunit/phpunit": "10.0.x-dev"
+    "pestphp/pest": "2.x-dev"
   },
   "autoload": {
     "psr-4": {

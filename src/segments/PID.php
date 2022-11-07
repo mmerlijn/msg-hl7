@@ -123,8 +123,10 @@ class PID extends Segment implements SegmentInterface
             ));
         }
         //get phone
-        foreach ($this->data[13] as $k => $phone) {
-            $msg->patient->addPhone($this->getData(13, $k));
+        if (isset($this->data[13])) {
+            foreach ($this->data[13] as $k => $phone) {
+                $msg->patient->addPhone($this->getData(13, $k));
+            }
         }
         return $msg;
     }
