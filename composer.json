@@ -30,7 +30,7 @@
     }
   },
   "scripts": {
-    "test": "vendor/bin/phpunit",
+    "test": "./vendor/bin/pest",
     "test-f": "vendor/bin/phpunit --filter"
   },
   "config": {
