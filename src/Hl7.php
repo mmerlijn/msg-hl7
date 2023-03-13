@@ -83,6 +83,7 @@ class Hl7
     public function setMsg(Msg $msg): self
     {
         $this->type = $msg->msgType->type ?: "ORM";
+
         if (empty($this->segments)) {
             $this->createDefaultSegments();
         }
@@ -185,6 +186,11 @@ class Hl7
                 (new PV1("PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V"))->setDatetimeFormat($this->datetime_format),
                 (new PV2("PV2|||"))->setDatetimeFormat($this->datetime_format),
                 (new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||"))->setDatetimeFormat($this->datetime_format),
+            ];
+        } elseif ($this->type == "OML") {
+            $this->segments = [
+                (new MSH("MSH|DEFAULT||||||||OML^021^OML_O21||P|2.5|||||NLD|8859/1"))->setDatetimeFormat($this->datetime_format),
+                (new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD"))->setDatetimeFormat($this->datetime_format),
             ];
         } elseif ($this->type == "") {
             $this->segments = [
