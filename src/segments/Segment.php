@@ -92,6 +92,7 @@ class Segment implements SegmentInterface
         $date = $this->getData($field, $repetition, $component, $subComponent);
         return match (strlen($date)) {
             8 => Carbon::createFromFormat("Ymd", $date),
+            12 => Carbon::createFromFormat("YmdHi", $date),
             14 => Carbon::createFromFormat("YmdHis", $date),
             19 => Carbon::createFromFormat("YmdHisO", $date),
             default => null,

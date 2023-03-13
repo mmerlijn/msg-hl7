@@ -54,7 +54,7 @@ class MSH extends Segment implements SegmentInterface
         $msg->receiver->application = $this->getData(5);
         //receiving facility
         $msg->receiver->facility = $this->getData(6);
-        //datetime of message
+
         $msg->datetime = $this->getDate(7);
 
         //security ID

@@ -58,4 +58,13 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
     }
 
 
+    public function test_orm_example()
+    {
+        $hl7 = new Hl7("");
+
+        var_dump(($hl7->getMsg(new Msg())));
+        die();
+    }
+
+
 }
