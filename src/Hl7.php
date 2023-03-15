@@ -59,11 +59,17 @@ class Hl7
         Validator::reset();
         $output = "";
         foreach ($this->segments as $teller => $segment) {
+            $segment->setDatetimeFormat($this->datetime_format);
             if ($validate)
                 $segment->validate();
-            if ($segment->name == "MSH")
+            if ($segment->name == "MSH") {
                 unset($segment->data[2]);
-            $output .= $segment->write() . chr(13);
+                $output .= str_replace("DEFAULT", "^~\&", $segment->write()) . chr(13);
+            } else {
+                $output .= $segment->write() . chr(13);
+            }
+
+
         }
         if (Validator::fails()) {
             throw new \Exception("HL7 validation fails: " . PHP_EOL . implode(PHP_EOL, Validator::getErrors()));

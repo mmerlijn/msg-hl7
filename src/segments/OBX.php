@@ -76,10 +76,10 @@ class OBX extends Segment implements SegmentInterface
         }
         //dt of observation
         if ($msg->order->dt_of_observation)
-            $this->setData($msg->order->dt_of_observation->format($this->datatime_format), 14);
+            $this->setData($msg->order->dt_of_observation->format($this->datetime_format), 14);
         //dt of analysis
         if ($msg->order->dt_of_analysis)
-            $this->setData($msg->order->dt_of_analysis->format($this->datatime_format), 19);
+            $this->setData($msg->order->dt_of_analysis->format($this->datetime_format), 19);
         return $this;
     }
 

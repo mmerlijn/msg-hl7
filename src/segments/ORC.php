@@ -49,7 +49,7 @@ class ORC extends Segment implements SegmentInterface
         //priority
         $this->setData($msg->order->priority ? "C" : "R", 7, 0, 5);
         //transaction datetime
-        $this->setData($msg->order->dt_of_request?->format($this->datatime_format), 9);
+        $this->setData($msg->order->dt_of_request?->format($this->datetime_format), 9);
         //requester (ordering provider)
         $this->setData($msg->order->requester->agbcode, 12);
         $this->setData($msg->order->requester->name->getLastnames(), 12, 0, 1);

@@ -47,7 +47,7 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->test_name, 4, 0, 1);
         $this->setData($msg->order->requests[$request_key]->test_source ?: "99zdl", 4, 0, 2);
 
-        $this->setData($msg->order->dt_of_observation?->format($this->datatime_format), 7);
+        $this->setData($msg->order->dt_of_observation?->format($this->datetime_format), 7);
         $this->setData($msg->order->where->getHl7(), 11);
 
         $this->setData($msg->order->requester->agbcode, 16);

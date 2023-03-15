@@ -12,7 +12,7 @@ class Segment implements SegmentInterface
 
     public string $name;    //name of the segment
     public array $data;     //data of the segment (multi dimensional)
-    public string $datatime_format = "YmdHisO";
+    public string $datetime_format = "YmdHisO";
 
     public function __construct(public string $line = "")
     {
@@ -68,7 +68,7 @@ class Segment implements SegmentInterface
 
     public function setDatetimeFormat(string $format): self
     {
-        $this->datatime_format = $format;
+        $this->datetime_format = $format;
         return $this;
     }
 

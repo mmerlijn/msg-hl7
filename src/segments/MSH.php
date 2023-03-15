@@ -24,7 +24,7 @@ class MSH extends Segment implements SegmentInterface
         //receiving application
         $this->setData($msg->receiver->facility, 6);
         //datetime of message
-        $this->setData($msg->datetime->format($this->datatime_format), 7);
+        $this->setData($msg->datetime->format($this->datetime_format), 7);
         //security ID
         $this->setData($msg->security_id, 8);
         //msg type
