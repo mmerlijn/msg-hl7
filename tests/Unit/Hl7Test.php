@@ -4,6 +4,9 @@ namespace mmerlijn\msgHl7\tests\Unit;
 
 
 use mmerlijn\msgHl7\Hl7;
+use mmerlijn\msgHl7\segments\BLG;
+use mmerlijn\msgHl7\segments\SPM;
+use mmerlijn\msgHl7\segments\Z03;
 use mmerlijn\msgHl7\tests\TestCase;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Request;
@@ -60,10 +63,39 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
 
     public function test_orm_example()
     {
-        $hl7 = new Hl7("");
+        $hl7 = new Hl7("MSH|^~\&|LabOnline|SALT|LabOnline|LOL_NIPT|202303131553||OML^O21^OML_O21|361288|P|2.5||||||8859/15
+PID|1||23-000058^^^^PI~021622401^^^NLMINBIZA^NNNLD||van Joost&van&Joost^A^A^^^^L||19910101|F|||TEstweg 1&TEstweg&1^a^Oosterhout^^4901CS^NL^M||0612300123^^CP
+ORC|NW|NT0000000114-001||NT0000000114|||||202303131552|Achtergrond||08000158^de Kern^Verloskundigenpraktijk^^^^^^VEKTIS
+OBR|1|NT0000000114-001||NIPT ^NIPT |||202303131553|||aschreuder||||||08000158^de Kern^Verloskundigenpraktijk^^^^^^VEKTIS
+BLG||CH");
 
-        var_dump(($hl7->getMsg(new Msg())));
-        die();
+        $msg = $hl7->getMsg(new Msg());
+        $hl7_new = new Hl7();
+        $hl7_new->setMsg($msg);
+        $hl7_new->addSegment((new SPM())
+            ->setData(1, 1)
+            ->setData("SB42412KS", 2)
+            ->setData("BCBB", 4, 0, 1)
+            ->setData("NIPT EDTA", 4, 0, 2)
+            ->setData("202303131553", 17)
+            ->setData("N", 20)
+        );
+        $hl7_new->addSegment((new Z03())->setData("AZLD", 1));
+        $hl7_new->addSegment((new SPM())
+            ->setData(2, 1)
+            ->setData("SB42412KZ", 2)
+            ->setData("BCBB", 4, 0, 1)
+            ->setData("NIPT EDTA", 4, 0, 2)
+            ->setData("202303131553", 17)
+            ->setData("N", 20)
+        );
+        $hl7_new->segments[$hl7_new->findSegmentKey("ORC")]->setData($msg->order->request_nr . "edit", 4);
+        $hl7_new->addSegment((new Z03())->setData("AZLD", 1));
+        $hl7_new->addSegment((new BLG())->setData("CH", 2));
+        //var_dump($hl7_new->segments);
+        $this->assertSame($hl7_new->write(), "");
+        //var_dump($hl7_new->write());
+        //die();
     }
 
 

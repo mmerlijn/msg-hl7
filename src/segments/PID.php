@@ -53,7 +53,12 @@ class PID extends Segment implements SegmentInterface
         foreach ($msg->patient->phones as $k => $phone) {
             $this->setData($phone, 13, $k);
             $this->setData(($k == 0) ? "PRN" : "ORN", 13, $k, 1);
-            $this->setData("PH", 13, $k, 2);
+            if (str_starts_with($phone, "06")) {
+                $this->setData("CP", 13, $k, 2); //mobile
+            } else {
+                $this->setData("PH", 13, $k, 2); //phone
+            }
+
         }
 
 

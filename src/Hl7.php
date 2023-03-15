@@ -12,6 +12,8 @@ use mmerlijn\msgHl7\segments\ORC;
 use mmerlijn\msgHl7\segments\PID;
 use mmerlijn\msgHl7\segments\PV1;
 use mmerlijn\msgHl7\segments\PV2;
+use mmerlijn\msgHl7\segments\Segment;
+use mmerlijn\msgHl7\segments\SegmentInterface;
 use mmerlijn\msgHl7\segments\Undefined;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Msg;
@@ -137,7 +139,7 @@ class Hl7
     }
 
     //search for first segment occurrence
-    public function findSegmentKey(string $SEG)
+    public function findSegmentKey(string $SEG): int
     {
         foreach ($this->segments as $k => $segment) {
             if ($segment->name == $SEG) {
@@ -145,6 +147,12 @@ class Hl7
             }
         }
         return count($this->segments);
+    }
+
+    public function addSegment(SegmentInterface $segment): self
+    {
+        $this->segments[] = $segment;
+        return $this;
     }
 
     protected function buildSegments(): void

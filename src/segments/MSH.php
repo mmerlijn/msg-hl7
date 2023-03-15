@@ -39,7 +39,9 @@ class MSH extends Segment implements SegmentInterface
         if ($msg->msgType->version) {
             $this->setData($msg->msgType->version, 12);
         }
-
+        if ($msg->msgType->charset) {
+            $this->setData($msg->msgType->charset, 18);
+        }
 
     }
 
@@ -69,7 +71,8 @@ class MSH extends Segment implements SegmentInterface
         $msg->processing_id = $this->getData(11);
         //version
         $msg->msgType->version = $this->getData(12);
-
+        //charset
+        $msg->msgType->charset = $this->getData(18);
         return $msg;
     }
 

@@ -23,7 +23,11 @@ class ORC extends Segment implements SegmentInterface
             $msg->order->request_nr = $this->getData(4);
         }
         //priority
-        $msg->order->priority = ($this->getData(7, 0, 5) == "R") ? false : true;
+
+        $msg->order->priority = match ($this->getData(7, 0, 5)) {
+            "C", "S", "CITO" => true,
+            default => false,
+        };
         //transaction datetime
         $msg->order->dt_of_request = $this->getDate(9);
 
