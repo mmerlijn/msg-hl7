@@ -139,11 +139,15 @@ class Hl7
     }
 
     //search for first segment occurrence
-    public function findSegmentKey(string $SEG): int
+    public function findSegmentKey(string $SEG, $number = 0): int
     {
+        $i = 0;
         foreach ($this->segments as $k => $segment) {
             if ($segment->name == $SEG) {
-                return $k;
+                if ($i == $number) {
+                    return $k;
+                }
+                $i++;
             }
         }
         return count($this->segments);
