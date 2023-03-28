@@ -165,6 +165,16 @@ class Hl7
         return $this;
     }
 
+    public function removeSegment(string $SEG, $number = 0): self
+    {
+        $key = $this->findSegmentKey($SEG, $number);
+        if ($key != count($this->segments)) {
+            unset($this->segments[$key]);
+            $this->segments = array_values($this->segments);
+        }
+        return $this;
+    }
+
     protected function buildSegments(): void
     {
         if (strlen($this->msg)) {

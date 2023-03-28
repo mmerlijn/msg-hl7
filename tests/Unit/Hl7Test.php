@@ -99,5 +99,18 @@ BLG||CH";
         //die();
     }
 
+    public function test_remove_segment()
+    {
+        $hl7 = "MSH|^~\&|LabOnline|SALT|LabOnline|LOL_NIPT|202303131553||OML^O21^OML_O21|361288|P|2.5||||||8859/15
+PID|1||23-000058^^^^PI~021622401^^^NLMINBIZA^NNNLD||van Joost&van&Joost^A^A^^^^L||19910101|F|||TEstweg 1&TEstweg&1^a^Oosterhout^^4901CS^NL^M||0612300123^^CP
+ORC|NW|NT0000000114-001||NT0000000114|||||202303131552|Achtergrond||08000158^de Kern^Verloskundigenpraktijk^^^^^^VEKTIS
+OBR|1|NT0000000114-001||NIPT ^NIPT |||202303131553|||aschreuder||||||08000158^de Kern^Verloskundigenpraktijk^^^^^^VEKTIS
+BLG||CH";
+        $hl7_new = new Hl7($hl7);
+        $hl7_new->removeSegment("OBR");
+        $hl7_new->removeSegment("BLG");
+        $this->assertEquals($hl7_new->write(), $hl7);
+    }
+
 
 }
