@@ -32,6 +32,7 @@ class ORC extends Segment implements SegmentInterface
         $msg->order->dt_of_request = $this->getDate(9);
 
         //ordering provider
+        $msg->patient->last_requester = $this->getData(12);
         $msg->order->requester->agbcode = $this->getData(12);
         $msg->order->requester->setName(new Name(name: $this->getData(12, 0, 1), initials: $this->getData(12, 0, 2)));
         $msg->order->requester->source = $this->getData(12, 0, 8);

@@ -27,6 +27,7 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $this->assertSame('B', $msg->order->requester->name->initials);
         $this->assertSame('van der', $msg->order->requester->name->own_prefix);
         $this->assertSame('01123456', $msg->order->requester->agbcode);
+        $this->assertSame('01123456', $msg->patient->last_requester);
         $this->assertSame('VEKTIS', $msg->order->requester->source);
         $this->assertFalse($msg->order->priority);
     }
