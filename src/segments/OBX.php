@@ -16,10 +16,10 @@ class OBX extends Segment implements SegmentInterface
     public function getMsg(Msg $msg): Msg
     {
         $msg->order->addResult(new Result(
-            test_name: $this->getData(3, 0, 1),
-            test_code: $this->getData(3),
-            test_source: $this->getData(3, 0, 2),
             value: $this->getData(5),
+            test_code: $this->getData(3),
+            test_name: $this->getData(3, 0, 1),
+            test_source: $this->getData(3, 0, 2),
             other_test_name: $this->getData(5, 0, 1),
             other_test_source: $this->getData(5, 0, 2),
             units: $this->getData(6),

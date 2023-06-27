@@ -100,7 +100,7 @@ class Segment implements SegmentInterface
     }
 
     //Todo use Encoding
-    protected function lineToFields()
+    protected function lineToFields(): void
     {
         $this->resetData();
         $fields = preg_split('/(?<!\\\)\|/', $this->line);
@@ -109,7 +109,7 @@ class Segment implements SegmentInterface
         }
     }
 
-    protected function fieldToRepetitions(int $field_key, string $field)
+    protected function fieldToRepetitions(int $field_key, string $field): void
     {
         $repetitions = preg_split('/(?<!\\\)~/', $field);
         foreach ($repetitions as $k => $repetition) {
@@ -117,7 +117,7 @@ class Segment implements SegmentInterface
         }
     }
 
-    public function repetitionToComponents(int $repetition_key, int $field_key, string $repetition)
+    public function repetitionToComponents(int $repetition_key, int $field_key, string $repetition): void
     {
         $components = preg_split('/(?<!\\\)\^/', $repetition);
         foreach ($components as $k => $component) {
@@ -125,14 +125,14 @@ class Segment implements SegmentInterface
         }
     }
 
-    public function componentToSubComponents(int $component_key, int $repetition_key, int $field_key, string $component)
+    public function componentToSubComponents(int $component_key, int $repetition_key, int $field_key, string $component): void
     {
         $subComponents = preg_split('/(?<!\\\)&/', $component);
         $this->data[$field_key][$repetition_key][$component_key] = $subComponents;
     }
 
 
-    protected function setName()
+    protected function setName(): void
     {
         $name = substr($this->line, 0, 3);
         if (!$this->name && $name) {
@@ -141,7 +141,7 @@ class Segment implements SegmentInterface
     }
 
 
-    protected function resetData()
+    protected function resetData(): void
     {
         $this->data = [];
         //foreach (range(0, 50) as $item) {
