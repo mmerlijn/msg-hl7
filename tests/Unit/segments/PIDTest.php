@@ -37,7 +37,7 @@ class PIDTest extends \mmerlijn\msgHl7\tests\TestCase
         $this->assertStringContainsString("van 't Hek - de Vries&de&Vries&van 't&Hek^P^D^^^^L|", $string);
         $this->assertStringContainsString("|20001012|", $string);
         $this->assertStringContainsString("|Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL^M|", $string);
-        $this->assertStringContainsString("|06 1234 5678^PRN^PH~020 1234 567^ORN^PH|", $string);
+        $this->assertStringContainsString("|06 1234 5678^PRN^CP~020 1234 567^ORN^PH|", $string);
 
     }
 
@@ -144,5 +144,16 @@ PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Bob^BR^^^^
 ");
         $msg = $hl7->getMsg(new Msg());
         $this->assertSame("BR", $msg->patient->name->initials);
+    }
+
+    public function test_address_getter()
+    {
+        $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Bob^BR^^^^L||19800101|M|^^^^^^A||Verbindingsdam 4 A/B M/S NE&Verbindingsdam 4^A/B M/S NE^Amsterdam^^1019BD^NL^M||0611112222^ORN^CP||||||||||||||||||Y|NNNLD
+");
+        $msg = $hl7->getMsg(new Msg());
+        //var_dump($msg->patient->address);
+        //exit();
+        $this->assertSame("Verbindingsdam", $msg->patient->address->street);
     }
 }

@@ -14,10 +14,10 @@ class OBXTest extends \mmerlijn\msgHl7\tests\TestCase
     public function test_setter()
     {
         $msg = new Msg();
-        $msg->order->addResult(new Result(test_code: "ABC", test_name: "Alpha Beta Gamma", test_source: "99zdl", references_range: "1-4", value: "false", done: true, units: "mmol/l"));
+        $msg->order->addResult(new Result(value: "false", test_code: "ABC", test_name: "Alpha Beta Gamma", test_source: "99zdl", units: "mmol/l", reference_range: "1-4", done: true));
         $obx = new OBX();
         $obx->setResults($msg, 0);
-        $this->assertStringContainsString("1|ST|ABC^Alpha Beta Gamma^99zdl||false|mmol/l|1-4||||F", $obx->write());
+        $this->assertStringContainsString("1|ST|ABC^Alpha Beta Gamma^99zdl||false|mmol/l|||||F", $obx->write());
     }
 
     public function test_getter()

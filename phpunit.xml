@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         colors="true"
->
-    <coverage ignoreDeprecatedCodeUnits="true">
-        <include>
-            <directory suffix=".php">./src</directory>
-        </include>
-    </coverage>
-    <testsuites>
-        <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
-        </testsuite>
-    </testsuites>
-    <php>
-        <ini name="max_execution_time" value="0"/>
-        <ini name="memory_limit" value="-1"/>
-        <ini name="precision" value="14"/>
-        <ini name="serialize_precision" value="14"/>
-    </php>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd" bootstrap="vendor/autoload.php" colors="true">
+  <coverage ignoreDeprecatedCodeUnits="true"/>
+  <testsuites>
+    <testsuite name="Unit">
+      <directory suffix="Test.php">./tests/Unit</directory>
+    </testsuite>
+    <testsuite name="Feature">
+      <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <ini name="max_execution_time" value="0"/>
+    <ini name="memory_limit" value="-1"/>
+    <ini name="precision" value="14"/>
+    <ini name="serialize_precision" value="14"/>
+  </php>
+  <source>
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+  </source>
 </phpunit>

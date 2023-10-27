@@ -16,7 +16,7 @@
     "nesbot/carbon": "v2.*"
   },
   "require-dev": {
-    "fakerphp/faker": "2.x-dev",
+    "fakerphp/faker": "2.0.x-dev",
     "pestphp/pest": "2.x-dev"
   },
   "autoload": {

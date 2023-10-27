@@ -23,7 +23,7 @@ class OBX extends Segment implements SegmentInterface
             other_test_name: $this->getData(5, 0, 1),
             other_test_source: $this->getData(5, 0, 2),
             units: $this->getData(6),
-            references_range: $this->getData(7),
+            reference_range: $this->getData(7),
             abnormal_flag: ResultFlagEnum::set($this->getData(8)),
             done: in_array($this->getData(11), ["F", "C"]) ? true : false,
             change: ($this->getData(11) == "C") ? true : false,

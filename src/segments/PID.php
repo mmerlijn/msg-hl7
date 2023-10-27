@@ -91,14 +91,14 @@ class PID extends Segment implements SegmentInterface
             new Name(
                 initials: $this->getInitials(),
                 lastname: $this->getData(5, 0, 0, 4),
-                own_lastname: $this->getData(5, 0, 0, 2),
                 prefix: $this->getData(5, 0, 0, 3),
+                own_lastname: $this->getData(5, 0, 0, 2),
                 own_prefix: $this->getData(5, 0, 0, 1),
             ));
         if (!$msg->patient->name->own_lastname) {
             $msg->patient->setName(new Name(
-                name: $this->getData(5),
-                initials: $this->getInitials()
+                initials: $this->getInitials(),
+                name: $this->getData(5)
             ));
         }
         //get dob
@@ -107,9 +107,9 @@ class PID extends Segment implements SegmentInterface
         $msg->patient->sex = PatientSexEnum::set($this->getData(8));
         //get address
         $msg->patient->setAddress(new Address(
-            street: $this->getData(11, 0, 0, 1),
             postcode: preg_replace('/\s/', '', $this->getData(11, 0, 4)),
             city: $this->getData(11, 0, 2),
+            street: $this->getData(11, 0, 0, 1),
             building: $this->getData(11, 0, 0, 2) . $this->getData(11, 0, 1),
             country: $this->getData(11, 0, 5),
         ));
@@ -120,9 +120,9 @@ class PID extends Segment implements SegmentInterface
         //second address
         if (isset($this->data[11][1])) {
             $msg->patient->setAddress2(new Address(
-                street: $this->getData(11, 1, 0, 1),
                 postcode: $this->getData(11, 1, 4),
                 city: $this->getData(11, 1, 2),
+                street: $this->getData(11, 1, 0, 1),
                 building: $this->getData(11, 1, 0, 2) . $this->getData(11, 1, 1),
                 country: $this->getData(11, 1, 5),
             ));
