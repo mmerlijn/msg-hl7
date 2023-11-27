@@ -62,7 +62,7 @@ class OBX extends Segment implements SegmentInterface
         //units
         $this->setData($msg->order->results[$result_key]->units, 6);
         //reference range
-        $this->setData($msg->order->results[$result_key]->references_range, 7);
+        $this->setData($msg->order->results[$result_key]->reference_range, 7);
         //abnormal flag
         $this->setData($msg->order->results[$result_key]->abnormal_flag->value, 8);
         //result status
