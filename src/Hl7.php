@@ -64,9 +64,12 @@ class Hl7
                 $segment->validate();
             if ($segment->name == "MSH") {
                 unset($segment->data[2]);
-                $output .= str_replace("DEFAULT", "^~\&", $segment->write()) . chr(13);
+                $output .= str_replace("DEFAULT", "^~\&", $segment->write()) . chr(13); //"^~\&"
             } else {
-                $output .= $segment->write() . chr(13);
+                $line = $segment->write();
+                if (strlen($line) > 3) {
+                    $output .= $line . chr(13);
+                }
             }
 
 

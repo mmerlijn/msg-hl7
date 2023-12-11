@@ -14,7 +14,7 @@ class MSH extends Segment implements SegmentInterface
     {
 
         //default message splitters
-        $this->data[1][0][0][0] = "^~\&";
+        $this->data[1][0][0][0] = "DEFAULT"; //"^~\&";
         //sending application
         $this->setData($msg->sender->application, 3);
         //sending facilty

@@ -3,13 +3,16 @@
 namespace mmerlijn\msgHl7\tests\Unit;
 
 
+use Carbon\Carbon;
 use mmerlijn\msgHl7\Hl7;
 use mmerlijn\msgHl7\segments\BLG;
 use mmerlijn\msgHl7\segments\SPM;
 use mmerlijn\msgHl7\segments\Z03;
 use mmerlijn\msgHl7\tests\TestCase;
+use mmerlijn\msgRepo\Enums\OrderControlEnum;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Request;
+use mmerlijn\msgRepo\Result;
 
 
 class Hl7Test extends TestCase
@@ -124,6 +127,5 @@ BLG||CH";
             "OBR|1|NT0000000114-001||NIPT ^NIPT |||202303131553|||aschreuder||||||08000158^de Kern^Verloskundigenpraktijk^^^^^^VEKTIS" . chr(13)
         );
     }
-
 
 }
