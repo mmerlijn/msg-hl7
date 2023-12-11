@@ -156,4 +156,25 @@ PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Bob^BR^^^^
         //exit();
         $this->assertSame("Verbindingsdam", $msg->patient->address->street);
     }
+
+    public function test_email_getter()
+    {
+        $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Jansen^Bob^BR^^^^L||19800101|M|^^^^^^A||Verbindingsdam 4 A/B M/S NE&Verbindingsdam 4^A/B M/S NE^Amsterdam^^1019BD^NL^M||0611112222^ORN^CP^test@mail.com||||||||||||||||||Y|NNNLD
+");
+        $msg = $hl7->getMsg(new Msg());
+        //var_dump($msg->patient->address);
+        //exit();
+        $this->assertSame("test@mail.com", $msg->patient->email);
+    }
+
+    public function test_email_setter()
+    {
+        $msg = new Msg();
+        $msg->patient->email = "test@mail.com";
+        $hl7 = (new Hl7())->setMsg($msg);
+        $out = $hl7->write();
+        expect($out)->toContain("^test@mail.com|");
+
+    }
 }

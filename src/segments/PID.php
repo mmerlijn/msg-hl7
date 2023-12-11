@@ -58,10 +58,10 @@ class PID extends Segment implements SegmentInterface
             } else {
                 $this->setData("PH", 13, $k, 2); //phone
             }
-
         }
-
-
+        if ($msg->patient->email) {
+            $this->setData($msg->patient->email, 13, 0, 3);
+        }
     }
 
     public function getMsg(Msg $msg): Msg
@@ -131,6 +131,15 @@ class PID extends Segment implements SegmentInterface
         if (isset($this->data[13])) {
             foreach ($this->data[13] as $k => $phone) {
                 $msg->patient->addPhone($this->getData(13, $k));
+
+            }
+            if ($this->getData(13, 0, 3)) {
+                $msg->patient->email = $this->getData(13, 0, 3);
+            }
+        }
+        if (isset($this->data[14])) {
+            if ($this->getData(14, 0, 3)) {
+                $msg->patient->email = $this->getData(14, 0, 3);
             }
         }
         return $msg;

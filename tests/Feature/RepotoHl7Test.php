@@ -9,6 +9,7 @@ use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Contact;
 use mmerlijn\msgRepo\Enums\OrderControlEnum;
 use mmerlijn\msgRepo\Enums\PatientSexEnum;
+use mmerlijn\msgRepo\Id;
 use mmerlijn\msgRepo\Insurance;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
@@ -40,8 +41,8 @@ it('create hl7', function () {
     $repo->order->requester = new Contact(
         agbcode: '12345678',
         name: new Name(initials: 'A', own_lastname: 'Groot', own_prefix: 'de'),
-        address: new Address(postcode: '1000CC', city: 'Amsterdam', street: 'Schoonstraat', building: '38a'),
-        phone: new Phone(number: '0612345678'),
+        source: 'VEKTIS',
+        address: new Address(postcode: '1000CC', city: 'Amsterdam', street: 'Schoonstraat', building: '38a'), phone: new Phone(number: '0612345678')
     );
     $repo->order->dt_of_request = Carbon::create("2023-12-11T11:00:00");
     $repo->setPatient(new Patient(
@@ -55,6 +56,7 @@ it('create hl7', function () {
         last_requester: "Groot, A. de",
         email: 'test@mail.com'
     ));
+    $repo->patient->addId(new Id(id: '1234', authority: 'ZorgDomein', code: 'VN'));
     $repo->order->control = OrderControlEnum::NEW;
     $hl7 = new Hl7();
     try {
@@ -68,7 +70,7 @@ it('create hl7', function () {
     $out = $hl7->write();
     expect($out)
         ->toBe('MSH|^~\&|agendasalt|SALT|Mirth|Test|20231211110000||ORM^001^ORM_001|123|P|2.5|||||NLD|8859/1' . chr(13) .
-            'PID|1||123456782^^^NLMINBIZA^NNNLD||de Groot&de&Groot^A^^^^^L||20000101|M|||Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL^M||06 1234 5678^PRN^CP||||||||||||||||||Y|NNNLD' . chr(13) .
+            'PID|1||123456782^^^NLMINBIZA^NNNLD~1234^^^ZorgDomein^VN||de Groot&de&Groot^A^^^^^L||20000101|M|||Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL^M||06 1234 5678^PRN^CP||||||||||||||||||Y|NNNLD' . chr(13) .
             'PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V' . chr(13) .
             'PV2|||LABEDG001^laboratorium^99zda' . chr(13) .
             'IN1|1|^null|123^^^VEKTIS^UZOVI|||||||||||||||||||||||||||||||||123456789' . chr(13) .
