@@ -28,6 +28,7 @@ class ORC extends Segment implements SegmentInterface
             "C", "S", "CITO" => true,
             default => false,
         };
+        $msg->order->start_date = $this->getDate(7, 0, 3);
         //transaction datetime
         $msg->order->dt_of_request = $this->getDate(9);
 
@@ -50,6 +51,7 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->request_nr, 4);
         //priority
         $this->setData($msg->order->priority ? "C" : "R", 7, 0, 5);
+        $this->setData($msg->order->start_date?->format($this->datetime_format), 7, 0, 3);
         //transaction datetime
         $this->setData($msg->order->dt_of_request?->format($this->datetime_format), 9);
         //requester (ordering provider)
