@@ -34,7 +34,8 @@ class ORC extends Segment implements SegmentInterface
         //ordering provider
         $msg->patient->last_requester = $this->getData(12);
         $msg->order->requester->agbcode = $this->getData(12);
-        $msg->order->requester->setName(new Name(name: $this->getData(12, 0, 1), initials: $this->getData(12, 0, 2)));
+        $msg->order->requester->setName(new Name(initials: $this->getData(12, 0, 2), name: $this->getData(12, 0, 1)));
+        $msg->order->entered_by->setName(new Name(initials: $this->getData(10, 0, 2), name: $this->getData(10, 0, 1)));
         $msg->order->requester->source = $this->getData(12, 0, 8);
         $msg->order->requester->location = $this->getData(13);
         return $msg;
@@ -57,6 +58,11 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->requester->name->initials, 12, 0, 2);
         $this->setData($msg->order->requester->source, 12, 0, 8);
         $this->setData($msg->order->requester->location, 13);
+        //entered by
+        $this->setData($msg->order->entered_by->agbcode, 10);
+        $this->setData($msg->order->entered_by->name->getLastnames(), 10, 0, 1);
+        $this->setData($msg->order->entered_by->name->initials, 10, 0, 2);
+        $this->setData($msg->order->entered_by->source, 10, 0, 8);
         return $this;
     }
 

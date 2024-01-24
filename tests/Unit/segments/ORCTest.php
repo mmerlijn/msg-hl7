@@ -29,6 +29,8 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $this->assertSame('01123456', $msg->order->requester->agbcode);
         $this->assertSame('01123456', $msg->patient->last_requester);
         $this->assertSame('VEKTIS', $msg->order->requester->source);
+        $this->assertSame('Doe', $msg->order->entered_by->name->own_lastname);
+        $this->assertSame('J', $msg->order->entered_by->name->initials);
         $this->assertFalse($msg->order->priority);
     }
 
@@ -55,13 +57,15 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $msg->order->request_nr = "AB12341234";
         $msg->order->dt_of_request = Carbon::create("2022-01-02 09:30:00");
         $msg->order->requester->agbcode = "05123456";
-        $msg->order->requester->setName(new Name(name: "de Groot", initials: "K.F."));
+        $msg->order->requester->setName(new Name(initials: "K.F.", name: "de Groot"));
+        $msg->order->entered_by->setName(new Name(initials: "L.", name: "Klein"));
         $orc = $orc->setOrder($msg);
 
         $this->assertStringContainsString("NW|AB12341234||AB12341234|", $orc->write());
         $this->assertStringContainsString("||^^^^^R||", $orc->write());
         $this->assertStringContainsString(Carbon::create("2022-01-02 09:30:00")->format("YmdHisO"), $orc->write());
         $this->assertStringContainsString("|05123456^de Groot^KF", $orc->write());
+        $this->assertStringContainsString("|^Klein^L", $orc->write());
         $string = $orc->write();
         $this->assertStringContainsString("", $string);
     }
