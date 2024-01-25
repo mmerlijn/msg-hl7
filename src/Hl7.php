@@ -124,13 +124,25 @@ class Hl7
                     $orc_done = true;
                 }
                 $this->segments[] = (new OBR($obr_line[$request->test_code] ?? ""))->setDatetimeFormat($this->datetime_format)->setRequest($msg, $k);
+                $specific_orcs = [];
                 foreach ($msg->order->results as $k2 => $result) {
-                    $this->segments[] = (new OBX())->setDatetimeFormat($this->datetime_format)->setResults($msg, $k2);
-                    if (!empty($result->comments)) {
-                        foreach ($result->comments as $id => $comment) {
-                            $this->segments[] = (new NTE())->setComment($id, $comment);
-                        }
+                    if ($result->only_for_request_test_code) {
+                        $specific_orcs[] = $result->only_for_request_test_code;
                     }
+                }
+                $counter = 0;
+                foreach ($msg->order->results as $k2 => $result) {
+                    if ($result->only_for_request_test_code == $request->test_code or ($result->only_for_request_test_code == "" and !in_array($request->test_code, $specific_orcs))) {
+                        $this->segments[] = (new OBX())->setDatetimeFormat($this->datetime_format)->setResults($result, $msg, $counter);
+                        $counter++;
+                        if (!empty($result->comments)) {
+                            foreach ($result->comments as $id => $comment) {
+                                $this->segments[] = (new NTE())->setComment($id, $comment);
+                            }
+                        }
+
+                    }
+
                 }
                 if (!empty($request->comments)) {
                     foreach ($request->comments as $id => $comment) {

@@ -37,39 +37,39 @@ class OBX extends Segment implements SegmentInterface
         return $msg;
     }
 
-    public function setResults(Msg $msg, $result_key): self
+    public function setResults(Result $result, Msg $msg, $result_key): self
     {
         //count id
         $this->setData($result_key + 1, 1);
         //type of result
-        if ($msg->order->results[$result_key]->type_of_value) {
-            $this->setData($msg->order->results[$result_key]->type_of_value, 2);
-        } elseif ($msg->order->results[$result_key]->other_test_name) {
+        if ($result->type_of_value) {
+            $this->setData($result->type_of_value, 2);
+        } elseif ($result->other_test_name) {
             $this->setData("CE", 2);
-        } elseif (is_numeric($msg->order->results[$result_key]->value)) {
+        } elseif (is_numeric($result->value)) {
             $this->setData("NM", 2);
         } else {
             $this->setData("ST", 2);
         }
         //test code / name
-        $this->setData($msg->order->results[$result_key]->test_code, 3);
-        $this->setData($msg->order->results[$result_key]->test_name, 3, 0, 1);
-        $this->setData($msg->order->results[$result_key]->test_source ?: '99zdl', 3, 0, 2);
+        $this->setData($result->test_code, 3);
+        $this->setData($result->test_name, 3, 0, 1);
+        $this->setData($result->test_source ?: '99zdl', 3, 0, 2);
         //result
-        $this->setData($msg->order->results[$result_key]->value, 5);
-        $this->setData($msg->order->results[$result_key]->other_test_name, 5, 0, 1);
-        $this->setData($msg->order->results[$result_key]->other_test_source, 5, 0, 2);
+        $this->setData($result->value, 5);
+        $this->setData($result->other_test_name, 5, 0, 1);
+        $this->setData($result->other_test_source, 5, 0, 2);
         //units
-        $this->setData($msg->order->results[$result_key]->units, 6);
+        $this->setData($result->units, 6);
         //reference range
-        $this->setData($msg->order->results[$result_key]->reference_range, 7);
+        $this->setData($result->reference_range, 7);
         //abnormal flag
-        $this->setData($msg->order->results[$result_key]->abnormal_flag->value, 8);
+        $this->setData($result->abnormal_flag->value, 8);
         //result status
 
-        if ($msg->order->results[$result_key]->change) {
+        if ($result->change) {
             $this->setData("C", 11); //correction/change
-        } elseif ($msg->order->results[$result_key]->done) {
+        } elseif ($result->done) {
             $this->setData("F", 11); //final
         } else {
             $this->setData("P", 11); //Preliminary results
