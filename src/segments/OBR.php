@@ -54,6 +54,9 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requester->name->getLastnames(), 16, 0, 1);
         $this->setData($msg->order->requester->name->initials, 16, 0, 2);
         $this->setData($msg->order->requester->source, 16, 0, 8);
+        if ($msg->order->start_date) {
+            $this->setData($msg->order->start_date->format($this->datetime_format), 20);
+        }
         return $this;
     }
 
