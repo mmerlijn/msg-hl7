@@ -32,7 +32,7 @@ class MSH extends Segment implements SegmentInterface
         $this->setData($msg->msgType->trigger ?: '001', 9, 0, 1);
         $this->setData($msg->msgType->structure ?: 'ORM_001', 9, 0, 2);
         //controle ID'/ message ID
-        $this->setData($msg->id, 10);
+        $this->setData($msg->id ?: dechex(time()) . bin2hex(random_bytes(6)), 10);
         //processingId
         $this->setData("P", 11);
         //version
