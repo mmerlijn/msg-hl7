@@ -16,6 +16,7 @@ class PIDTest extends \mmerlijn\msgHl7\tests\TestCase
         $msg = new Msg();
         $msg->patient->addId(new Id(id: "123456782", authority: "NLMINBIZA", code: "NNNLD"));
         $msg->patient->addId(new Id(id: "ZD12345678", authority: "ZorgDomein", code: "VN"));
+        $msg->patient->addId(new Id(id: "ABC1010200001", authority: "SALT", code: "PI"));
 
         //name
         $msg->patient->setName(new Name(initials: "P.D.", lastname: "Hek", prefix: "van 't", own_lastname: "Vries", own_prefix: "de"));
@@ -33,7 +34,7 @@ class PIDTest extends \mmerlijn\msgHl7\tests\TestCase
         //var_dump($hl7->segments[0]->data);
         $string = $hl7->write();
 
-        $this->assertStringContainsString("PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN|", $string);
+        $this->assertStringContainsString("PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN|ABC1010200001^^^SALT^PI", $string);
         $this->assertStringContainsString("van 't Hek - de Vries&de&Vries&van 't&Hek^P^D^^^^L|", $string);
         $this->assertStringContainsString("|20001012|", $string);
         $this->assertStringContainsString("|Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL^M|", $string);
@@ -44,17 +45,16 @@ class PIDTest extends \mmerlijn\msgHl7\tests\TestCase
     public function test_getters()
     {
         $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
-PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Doe - Testname&&Testname&&Doe^A^B^^^^L||19800623|M|||Schoonstraat 38 a&Schoonstraat&38^a^AMSTERDAM^^1040AB^NL^M||0612341234^ORN^CP||||||||||||||||||Y|NNNLD");
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN|ABC2012199901^^^SALT^PI|Doe - Testname&&Testname&&Doe^A^B^^^^L||19800623|M|||Schoonstraat 38 a&Schoonstraat&38^a^AMSTERDAM^^1040AB^NL^M||0612341234^ORN^CP||||||||||||||||||Y|NNNLD");
         $msg = $hl7->getMsg(new Msg());
-        var_dump($msg->patient->ids);
-        die();
+
         $this->assertSame("123456782", $msg->patient->ids[0]->id);
         $this->assertSame("NLMINBIZA", $msg->patient->ids[0]->authority);
         $this->assertSame("NNNLD", $msg->patient->ids[0]->code);
         $this->assertSame("ZD12345678", $msg->patient->ids[1]->id);
         $this->assertSame("ZorgDomein", $msg->patient->ids[1]->authority);
         $this->assertSame("VN", $msg->patient->ids[1]->code);
-
+        $this->assertSame("ABC2012199901", $msg->patient->ids[2]->id);
         //sex
         $this->assertSame("M", $msg->patient->sex->value);
         //dob

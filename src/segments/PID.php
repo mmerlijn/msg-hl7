@@ -16,10 +16,20 @@ class PID extends Segment implements SegmentInterface
     public function setMsg(Msg $msg): void
     {
         //set patient identifier
+        $counterLocal = 0;
+        $counter = 0;
         foreach ($msg->patient->ids as $k => $id) {
-            $this->setData($id->id, 3, $k);
-            $this->setData($id->authority, 3, $k, 3);
-            $this->setData($id->code, 3, $k, 4);
+            if ($id->authority == 'SALT') {
+                $this->setData($id->id, 4, $counterLocal);
+                $this->setData($id->authority, 4, $counterLocal, 3);
+                $this->setData($id->code, 4, $counterLocal, 4);
+                $counterLocal++;
+            } else {
+                $this->setData($id->id, 3, $counter);
+                $this->setData($id->authority, 3, $counter, 3);
+                $this->setData($id->code, 3, $counter, 4);
+                $counter++;
+            }
         }
         //set patient name
         $this->setData(
@@ -80,15 +90,29 @@ class PID extends Segment implements SegmentInterface
         }
         //get patient identifier
         foreach ($this->data[3] as $k => $id) {
-            $msg->patient->addId(
-                new Id(
-                    id: $this->getData(3, $k),
-                    authority: $this->getData(3, $k, 3),
-                    code: $this->getData(3, $k, 4)
-                )
-            );
+            if ($this->getData(3, $k)) {
+                $msg->patient->addId(
+                    new Id(
+                        id: $this->getData(3, $k),
+                        authority: $this->getData(3, $k, 3),
+                        code: $this->getData(3, $k, 4)
+                    )
+                );
+            }
         }
+        //get patient identifier
+        foreach ($this->data[4] as $k => $id) {
 
+            if ($this->getData(4, $k)) {
+                $msg->patient->addId(
+                    new Id(
+                        id: $this->getData(4, $k),
+                        authority: $this->getData(4, $k, 3),
+                        code: $this->getData(4, $k, 4)
+                    )
+                );
+            }
+        }
         //get name
         $msg->patient->setName(
             new Name(
