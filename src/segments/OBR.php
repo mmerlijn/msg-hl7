@@ -23,9 +23,9 @@ class OBR extends Segment implements SegmentInterface
         if (!$msg->order->request_nr) {
             $msg->order->request_nr = $this->getData(2);
         }
-        $msg->order->priority = match ($this->getData(5)) {
-            "C", "S", "CITO" => true,
-        };
+        if (in_array($this->getData(5), ["C", "S", "CITO"])) {
+            $msg->order->priority = true;
+        }
 
         $msg->order->dt_of_observation = $this->getDate(7);
 
