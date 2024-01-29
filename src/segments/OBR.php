@@ -23,6 +23,10 @@ class OBR extends Segment implements SegmentInterface
         if (!$msg->order->request_nr) {
             $msg->order->request_nr = $this->getData(2);
         }
+        $msg->order->priority = match ($this->getData(5)) {
+            "C", "S", "CITO" => true,
+        };
+
         $msg->order->dt_of_observation = $this->getDate(7);
 
         $msg->order->where = OrderWhereEnum::set($this->getData(11));
@@ -46,7 +50,7 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->test_code, 4);
         $this->setData($msg->order->requests[$request_key]->test_name, 4, 0, 1);
         $this->setData($msg->order->requests[$request_key]->test_source ?: "99zdl", 4, 0, 2);
-
+        $this->setData($msg->order->priority ? "C" : "R", 5);
         $this->setData($msg->order->dt_of_observation?->format($this->datetime_format), 7);
         $this->setData($msg->order->where->getHl7(), 11);
 
