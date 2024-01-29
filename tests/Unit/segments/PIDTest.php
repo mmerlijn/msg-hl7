@@ -46,6 +46,8 @@ class PIDTest extends \mmerlijn\msgHl7\tests\TestCase
         $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
 PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Doe - Testname&&Testname&&Doe^A^B^^^^L||19800623|M|||Schoonstraat 38 a&Schoonstraat&38^a^AMSTERDAM^^1040AB^NL^M||0612341234^ORN^CP||||||||||||||||||Y|NNNLD");
         $msg = $hl7->getMsg(new Msg());
+        var_dump($msg->patient->ids);
+        die();
         $this->assertSame("123456782", $msg->patient->ids[0]->id);
         $this->assertSame("NLMINBIZA", $msg->patient->ids[0]->authority);
         $this->assertSame("NNNLD", $msg->patient->ids[0]->code);

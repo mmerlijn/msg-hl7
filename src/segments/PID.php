@@ -68,13 +68,15 @@ class PID extends Segment implements SegmentInterface
     {
         //get patient ID
         foreach ($this->data[2] as $k => $id) {
-            $msg->patient->addId(
-                new Id(
-                    id: $this->getData(2, $k),
-                    authority: $this->getData(2, $k, 3),
-                    code: $this->getData(2, $k, 4)
-                )
-            );
+            if ($this->getData(2, $k)) {
+                $msg->patient->addId(
+                    new Id(
+                        id: $this->getData(2, $k),
+                        authority: $this->getData(2, $k, 3),
+                        code: $this->getData(2, $k, 4)
+                    )
+                );
+            }
         }
         //get patient identifier
         foreach ($this->data[3] as $k => $id) {
@@ -86,6 +88,7 @@ class PID extends Segment implements SegmentInterface
                 )
             );
         }
+
         //get name
         $msg->patient->setName(
             new Name(
