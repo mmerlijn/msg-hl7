@@ -84,6 +84,22 @@ class Hl7
         return $output;
     }
 
+    public function filterRequestCode(string|array $test_code): self
+    {
+        if (is_string($test_code)) {
+            $test_code = [$test_code];
+        }
+        //TODO segment teller aanpassen bij verwijderen
+        $this->segments = array_filter($this->segments, function ($segment) use ($test_code) {
+            if ($segment->name == "OBR") {
+                return !in_array($segment->getData(4), $test_code);
+            }
+
+            return true;
+        });
+        return $this;
+    }
+
     public function getMsg(?Msg $msg = null): Msg
     {
         if (!$msg) {
