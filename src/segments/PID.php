@@ -2,6 +2,7 @@
 
 namespace mmerlijn\msgHl7\segments;
 
+use Carbon\Carbon;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Enums\PatientSexEnum;
@@ -12,6 +13,10 @@ use mmerlijn\msgRepo\Name;
 class PID extends Segment implements SegmentInterface
 {
     public string $name = "PID";
+
+    protected array $date_fields = [
+        "7.0.0" => "date",
+    ];
 
     public function setMsg(Msg $msg): void
     {
@@ -45,7 +50,7 @@ class PID extends Segment implements SegmentInterface
         $this->setData(preg_replace('/\./', "", mb_substr($msg->patient->name->initials, 1)), 5, 0, 2);
 
         //set dob
-        $this->setData($msg->patient->dob?->format("Ymd"), 7);
+        $this->setDate($msg->patient->dob, 7);
 
         //set sex
         $this->setData($msg->patient->sex->value, 8);

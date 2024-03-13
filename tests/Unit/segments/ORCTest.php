@@ -37,6 +37,7 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
     public function test_priority_getter()
     {
         $orc = new ORC("ORC|NW|ZD12345678||ZD12345678|||^^^20221129000000+0100^^R||20220102103000+0200|^Doe^J.||01123456^van der Plas^B.^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS");
+        expect($orc->data[9][0][0][0])->toBeInstanceOf(Carbon::class);
         $msg = $orc->getMsg(new Msg());
         $this->assertFalse($msg->order->priority);
         $this->assertSame("2022-11-29", $msg->order->start_date->format("Y-m-d"));
@@ -60,11 +61,11 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $msg->order->requester->agbcode = "05123456";
         $msg->order->requester->setName(new Name(initials: "K.F.", name: "de Groot"));
         $msg->order->entered_by->setName(new Name(initials: "L.", name: "Klein"));
-        $msg->order->start_date = Carbon::create("2022-01-02");
+        $msg->order->start_date = Carbon::create("2022-01-02 09:30:00");
         $orc = $orc->setOrder($msg);
-
+        expect($orc->data[9][0][0][0])->toBeInstanceOf(Carbon::class);
         $this->assertStringContainsString("NW|AB12341234||AB12341234|", $orc->write());
-        $this->assertStringContainsString("||^^^20220102000000+0100^^R||", $orc->write());
+        $this->assertStringContainsString("||^^^20220102093000+0100^^R||", $orc->write());
         $this->assertStringContainsString(Carbon::create("2022-01-02 09:30:00")->format("YmdHisO"), $orc->write());
         $this->assertStringContainsString("|05123456^de Groot^KF", $orc->write());
         $this->assertStringContainsString("|^Klein^L", $orc->write());

@@ -10,6 +10,10 @@ class MSH extends Segment implements SegmentInterface
 {
     public string $name = "MSH";
 
+    protected array $date_fields = [
+        "7.0.0" => 'datetime',
+    ];
+
     public function setMsg(Msg $msg): void
     {
 
@@ -24,7 +28,7 @@ class MSH extends Segment implements SegmentInterface
         //receiving application
         $this->setData($msg->receiver->facility, 6);
         //datetime of message
-        $this->setData($msg->datetime->format($this->datetime_format), 7);
+        $this->setDate($msg->datetime, 7);
         //security ID
         $this->setData($msg->security_id, 8);
         //msg type

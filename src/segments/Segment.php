@@ -9,7 +9,7 @@ use mmerlijn\msgRepo\Msg;
 class Segment implements SegmentInterface
 {
     public $repeat = false; //default segment is not repeatable
-
+    protected array $date_fields = [];
     public string $name;    //name of the segment
     public array $data;     //data of the segment (multi dimensional)
     public string $datetime_format = "YmdHisO";
@@ -35,19 +35,48 @@ class Segment implements SegmentInterface
         return $this;
     }
 
+    //public function write(): string
+    //{
+    //    $fields = [];
+    //    foreach ($this->data as $f => $i) {
+    //        if (in_array($f, array_keys($this->date_fields)) and $i[0][0][0] ?? "" instanceof Carbon) {
+    //            $fields[] = $i[0][0][0]->format($this->date_fields[$f] == 'datetime' ? $this->datetime_format : 'Ymd');
+    //        } else {
+    //            $rep = [];
+    //            foreach ($i as $j) {
+    //                $components = [];
+    //                foreach ($j as $k) {
+    //                    $components[] = preg_replace("/\.*(&*)$/", "", implode("&", $k));
+    //                }
+    //                $rep[] = preg_replace("/\.*(\^*)$/", "", implode("^", $components));
+    //            }
+    //            $fields[] = preg_replace("/\.*(~*)$/", "", implode("~", $rep));
+    //        }
+    //    }
+    //    return preg_replace("/\.*(\|*)$/", "", implode("|", $fields));
+    //}
     public function write(): string
     {
         $fields = [];
-        foreach ($this->data as $i) {
+        foreach ($this->data as $f => $i) {
+            //if (in_array($f, array_keys($this->date_fields)) and $i[0][0][0] ?? "" instanceof Carbon) {
+            //    $fields[] = $i[0][0][0]->format($this->date_fields[$f] == 'datetime' ? $this->datetime_format : 'Ymd');
+            //} else {
             $rep = [];
-            foreach ($i as $j) {
+            foreach ($i as $r => $j) {
                 $components = [];
-                foreach ($j as $k) {
-                    $components[] = preg_replace("/\.*(&*)$/", "", implode("&", $k));
+                foreach ($j as $c => $k) {
+
+                    if (in_array("$f.$r.$c", array_keys($this->date_fields)) and ($k[0] ?? false) instanceof Carbon) { //
+                        $components[] = $k[0]->format(($this->date_fields["$f.$r.$c"] == 'datetime') ? $this->datetime_format : 'Ymd');
+                    } else {
+                        $components[] = preg_replace("/\.*(&*)$/", "", implode("&", $k));
+                    }
                 }
                 $rep[] = preg_replace("/\.*(\^*)$/", "", implode("^", $components));
             }
             $fields[] = preg_replace("/\.*(~*)$/", "", implode("~", $rep));
+            //}
         }
         return preg_replace("/\.*(\|*)$/", "", implode("|", $fields));
     }
@@ -81,6 +110,21 @@ class Segment implements SegmentInterface
         return $this;
     }
 
+    public function setDate(Carbon|string|null $value, int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): self
+    {
+        if (!($this->data[$field][$repetition][$component][$subComponent] ?? false)) {
+            $this->expandData($field, $repetition, $component, $subComponent);
+        }
+        if ($value instanceof Carbon) {
+            $this->data[$field][$repetition][$component][$subComponent] = $value;
+        } elseif (gettype($value) == "string") {
+            $this->data[$field][$repetition][$component][$subComponent] = Carbon::create($value);
+        } else {
+            $this->data[$field][$repetition][$component][$subComponent] = null;
+        }
+        return $this;
+    }
+
 
     public function getData(int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): string
     {
@@ -89,7 +133,14 @@ class Segment implements SegmentInterface
 
     public function getDate(int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): ?Carbon
     {
+        if (($this->data[$field][$repetition][$component][$subComponent] ?? "") instanceof Carbon)
+            return $this->data[$field][$repetition][$component][$subComponent] ?? null;
         $date = $this->getData($field, $repetition, $component, $subComponent);
+        return $this->toCarbon($date);
+    }
+
+    public function toCarbon(string $date): ?Carbon
+    {
         return match (strlen($date)) {
             8 => Carbon::createFromFormat("Ymd", $date),
             12 => Carbon::createFromFormat("YmdHi", $date),
@@ -128,6 +179,9 @@ class Segment implements SegmentInterface
     public function componentToSubComponents(int $component_key, int $repetition_key, int $field_key, string $component): void
     {
         $subComponents = preg_split('/(?<!\\\)&/', $component);
+        if (in_array("$field_key.$repetition_key.$component_key", array_keys($this->date_fields))) {
+            $subComponents[0] = $this->toCarbon($subComponents[0]);
+        }
         $this->data[$field_key][$repetition_key][$component_key] = $subComponents;
     }
 

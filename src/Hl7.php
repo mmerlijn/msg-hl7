@@ -58,6 +58,7 @@ class Hl7
     {
         Validator::reset();
         $output = "";
+        $orc_counter = 0;
         foreach ($this->segments as $teller => $segment) {
             $segment->setDatetimeFormat($this->datetime_format);
             if ($validate)
@@ -65,14 +66,17 @@ class Hl7
             if ($segment->name == "MSH") {
                 unset($segment->data[2]);
                 $output .= str_replace("DEFAULT", "^~\&", $segment->write()) . chr(13); //"^~\&"
+            } elseif (!$this->repeat_ORC and $orc_counter > 0 and $segment->name == "ORC") {
+                //skip
             } else {
+                if ($segment->name == "ORC") {
+                    $orc_counter++;
+                }
                 $line = $segment->write();
                 if (strlen($line) > 3) {
                     $output .= $line . chr(13);
                 }
             }
-
-
         }
         if (Validator::fails()) {
             throw new \Exception("HL7 validation fails: " . PHP_EOL . implode(PHP_EOL, Validator::getErrors()));
@@ -112,7 +116,7 @@ class Hl7
                 }
                 unset($this->segments[$k]);
             } else {
-                $this->segments[$k]->setDatetimeFormat($this->datetime_format)->setMsg($msg);
+                $this->segments[$k]->setMsg($msg);
             }
         }
         $this->segments = array_values($this->segments);
@@ -120,10 +124,10 @@ class Hl7
             $orc_done = false;
             foreach ($msg->order->requests as $k => $request) {
                 if ($this->repeat_ORC or $orc_done == false) {
-                    $this->segments[] = (new ORC($orc_line))->setDatetimeFormat($this->datetime_format)->setOrder($msg);
+                    $this->segments[] = (new ORC($orc_line))->setOrder($msg);
                     $orc_done = true;
                 }
-                $this->segments[] = (new OBR($obr_line[$request->test_code] ?? ""))->setDatetimeFormat($this->datetime_format)->setRequest($msg, $k);
+                $this->segments[] = (new OBR($obr_line[$request->test_code] ?? ""))->setRequest($msg, $k);
                 $specific_orcs = [];
                 foreach ($msg->order->results as $k2 => $result) {
                     if ($result->only_for_request_test_code) {
@@ -133,7 +137,7 @@ class Hl7
                 $counter = 0;
                 foreach ($msg->order->results as $k2 => $result) {
                     if ($result->only_for_request_test_code == $request->test_code or ($result->only_for_request_test_code == "" and !in_array($request->test_code, $specific_orcs))) {
-                        $this->segments[] = (new OBX())->setDatetimeFormat($this->datetime_format)->setResults($result, $msg, $counter);
+                        $this->segments[] = (new OBX())->setResults($result, $msg, $counter);
                         $counter++;
                         if (!empty($result->comments)) {
                             foreach ($result->comments as $id => $comment) {

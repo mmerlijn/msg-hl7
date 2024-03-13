@@ -67,20 +67,17 @@ it('create hl7', function () {
         var_dump($e);
         die();
     }
-    $out = $hl7->write();
+    //expect($hl7->segments[5]->data[7][0][0][0])->toBeInstanceOf(Carbon::class);
+    $out = $hl7->setDatetimeFormat("YmdHis")->write();
     expect($out)
         ->toBe('MSH|^~\&|agendasalt|SALT|Mirth|Test|20231211110000||ORM^001^ORM_001|123|P|2.5|||||NLD|8859/1' . chr(13) .
-            'PID|1||123456782^^^NLMINBIZA^NNNLD~1234^^^ZorgDomein^VN||de Groot&de&Groot^A^^^^^L||20000101|M|||Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL^M||06 1234 5678^PRN^CP||||||||||||||||||Y|NNNLD' . chr(13) .
+            'PID|1||123456782^^^NLMINBIZA^NNNLD~1234^^^ZorgDomein^VN||de Groot&de&Groot^A^^^^^L||20000101|M|||Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL^M||06 1234 5678^PRN^CP^test@mail.com||||||||||||||||||Y|NNNLD' . chr(13) .
             'PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V' . chr(13) .
             'PV2|||LABEDG001^laboratorium^99zda' . chr(13) .
             'IN1|1|^null|123^^^VEKTIS^UZOVI|||||||||||||||||||||||||||||||||123456789' . chr(13) .
-            'ORC|NW|AB123||AB123|||^^^^^R||20231211110000|||12345678^de Groot^A' . chr(13) .
-            'OBR|1|AB123||TST^Testname^SRC||||||||||||12345678^de Groot^A' . chr(13) .
+            'ORC|NW|AB123||AB123|||^^^^^R||20231211110000|||12345678^de Groot^A^^^^^^VEKTIS' . chr(13) .
+            'OBR|1|AB123||TST^Testname^SRC|R|||||||||||12345678^de Groot^A^^^^^^VEKTIS' . chr(13) .
             'OBX|1|ST|TST^Testname^SRC||123||||||F' . chr(13));
-
-    //expect($out)
-    //    //  ->toBe('');
-    //    ->toContain('MSH', 'PID', 'ORC', "2.5", 'Mirth');
 
 
 });

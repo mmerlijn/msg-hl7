@@ -13,6 +13,13 @@ class ORC extends Segment implements SegmentInterface
 {
     public string $name = "ORC";
 
+    protected array $date_fields = [
+        "7.0.3" => "datetime", //start date
+        "9.0.0" => 'datetime',
+        "15.0.0" => 'datetime',
+        "27.0.0" => 'datetime',
+    ];
+
     public function getMsg(Msg $msg): Msg
     {
         //order controe
@@ -54,20 +61,23 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->request_nr, 4);
         //priority
         $this->setData($msg->order->priority ? "C" : "R", 7, 0, 5);
-        $this->setData($msg->order->start_date?->format($this->datetime_format), 7, 0, 3);
+        $this->setDate($msg->order->start_date, 7, 0, 3);
         //transaction datetime
-        $this->setData($msg->order->dt_of_request?->format($this->datetime_format), 9);
+        $this->setDate($msg->order->dt_of_request, 9);
+
         //requester (ordering provider)
         $this->setData($msg->order->requester->agbcode, 12);
         $this->setData($msg->order->requester->name->getLastnames(), 12, 0, 1);
         $this->setData($msg->order->requester->name->initials, 12, 0, 2);
         $this->setData($msg->order->requester->source, 12, 0, 8);
         $this->setData($msg->order->requester->location, 13);
+
         //entered by
         $this->setData($msg->order->entered_by->agbcode, 10);
         $this->setData($msg->order->entered_by->name->getLastnames(), 10, 0, 1);
         $this->setData($msg->order->entered_by->name->initials, 10, 0, 2);
         $this->setData($msg->order->entered_by->source, 10, 0, 8);
+
         return $this;
     }
 

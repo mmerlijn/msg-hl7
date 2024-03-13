@@ -13,6 +13,11 @@ class OBX extends Segment implements SegmentInterface
 {
     public string $name = "OBX";
 
+    protected array $date_fields = [
+        "14.0.0" => 'datetime',
+        "19.0.0" => 'datetime',
+    ];
+
     public function getMsg(Msg $msg): Msg
     {
         $msg->order->addResult(new Result(
@@ -76,10 +81,10 @@ class OBX extends Segment implements SegmentInterface
         }
         //dt of observation
         if ($msg->order->dt_of_observation)
-            $this->setData($msg->order->dt_of_observation->format($this->datetime_format), 14);
+            $this->setDate($msg->order->dt_of_observation, 14);
         //dt of analysis
         if ($msg->order->dt_of_analysis)
-            $this->setData($msg->order->dt_of_analysis->format($this->datetime_format), 19);
+            $this->setDate($msg->order->dt_of_analysis, 19);
         return $this;
     }
 

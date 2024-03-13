@@ -12,6 +12,11 @@ class OBR extends Segment implements SegmentInterface
 {
     public string $name = "OBR";
 
+    protected array $date_fields = [
+        "7.0.0" => 'datetime',
+        "20.0.0" => 'datetime',
+    ];
+
     public function getMsg(Msg $msg): Msg
     {
         $msg->order->addRequest(
@@ -40,6 +45,7 @@ class OBR extends Segment implements SegmentInterface
                 ));
             $msg->order->requester->source = $this->getData(16, 0, 8);
         }
+        $msg->order->start_date = $this->getDate(20);
         return $msg;
     }
 
@@ -51,7 +57,7 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->test_name, 4, 0, 1);
         $this->setData($msg->order->requests[$request_key]->test_source ?: "99zdl", 4, 0, 2);
         $this->setData($msg->order->priority ? "C" : "R", 5);
-        $this->setData($msg->order->dt_of_observation?->format($this->datetime_format), 7);
+        $this->setDate($msg->order->dt_of_observation, 7);
         $this->setData($msg->order->where->getHl7(), 11);
 
         $this->setData($msg->order->requester->agbcode, 16);
@@ -59,7 +65,7 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requester->name->initials, 16, 0, 2);
         $this->setData($msg->order->requester->source, 16, 0, 8);
         if ($msg->order->start_date) {
-            $this->setData($msg->order->start_date->format($this->datetime_format), 20);
+            $this->setDate($msg->order->start_date, 20);
         }
         return $this;
     }

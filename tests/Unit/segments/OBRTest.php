@@ -21,7 +21,7 @@ class OBRTest extends \mmerlijn\msgHl7\tests\TestCase
         $msg->order->requester->agbcode = "01123456";
         $obr = new OBR();
         $obr->setRequest($msg, 0);
-        $this->assertStringContainsString("AB12341234||ABC^Alpha Beta Gamma^99zdl|||||||L|||||01123456^van der Plas^R^^^^^^VEKTIS", $obr->write());
+        $this->assertStringContainsString("AB12341234||ABC^Alpha Beta Gamma^99zdl|R||||||L|||||01123456^van der Plas^R^^^^^^VEKTIS", $obr->write());
     }
 
     public function test_where_setter()
@@ -31,12 +31,12 @@ class OBRTest extends \mmerlijn\msgHl7\tests\TestCase
         $msg->order->addRequest(new Request(test_code: "ABC", test_name: "Alpha Beta Gamma", test_source: "99zdl"));
         $obr = new OBR();
         $obr->setRequest($msg, 0);
-        $this->assertStringContainsString("|||||||L", $obr->write());
+        $this->assertStringContainsString("|R||||||L", $obr->write());
         $msg->order->where = OrderWhereEnum::OTHER;
         $msg->order->addRequest(new Request(test_code: "ABC", test_name: "Alpha Beta Gamma", test_source: "99zdl"));
         $obr = new OBR();
         $obr->setRequest($msg, 0);
-        $this->assertStringContainsString("|||||||O", $obr->write());
+        $this->assertStringContainsString("|R||||||O", $obr->write());
     }
 
     public function test_getter()
