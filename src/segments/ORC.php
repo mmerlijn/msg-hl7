@@ -49,6 +49,10 @@ class ORC extends Segment implements SegmentInterface
         $msg->order->entered_by->agbcode = $this->getData(10);
         $msg->order->entered_by->source = $this->getData(10, 0, 8);
 
+        $msg->order->organisation->name = $this->getData(17, 0, 1);
+        $msg->order->organisation->agbcode = $this->getData(17);
+        $msg->order->organisation->source = $this->getData(17, 0, 2);
+
         return $msg;
     }
 
