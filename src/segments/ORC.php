@@ -40,7 +40,7 @@ class ORC extends Segment implements SegmentInterface
         $msg->order->dt_of_request = $this->getDate(9);
 
         //ordering provider
-        $msg->patient->last_requester = $this->getData(12);
+
         $msg->order->requester->agbcode = $this->getData(12);
         $msg->order->requester->setName(new Name(initials: $this->getData(12, 0, 2), name: $this->getData(12, 0, 1)));
         $msg->order->requester->source = $this->getData(12, 0, 8);
@@ -52,7 +52,15 @@ class ORC extends Segment implements SegmentInterface
         $msg->order->organisation->name = $this->getData(17, 0, 1);
         $msg->order->organisation->agbcode = $this->getData(17);
         $msg->order->organisation->source = $this->getData(17, 0, 2);
-
+        if (str_starts_with($this->getData(12), "0")) {
+            $msg->patient->last_requester = $this->getData(12);
+        } elseif (str_starts_with($this->getData(17), "0")) {
+            $msg->patient->last_requester = $this->getData(17);
+        } elseif (str_starts_with($this->getData(10), "0")) {
+            $msg->patient->last_requester = $this->getData(10);
+        } else {
+            $msg->patient->last_requester = $this->getData(12);
+        }
         return $msg;
     }
 
