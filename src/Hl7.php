@@ -29,7 +29,7 @@ class Hl7
     public function __construct(string $hl7 = "")
     {
         if ($hl7) {
-            $this->msg = $hl7;
+            $this->setHl7($hl7);
             $this->buildSegments();
         }
         return $this;
@@ -49,7 +49,7 @@ class Hl7
 
     public function read(string $hl7): self
     {
-        $this->msg = $hl7;
+        $this->setHl7($hl7);
         $this->buildSegments();
         return $this;
     }
@@ -259,5 +259,10 @@ class Hl7
             $this->segments = [
             ];
         }
+    }
+
+    private function setHl7(string $hl7): void
+    {
+        $this->msg = preg_replace('/^(MSH\|\^.+)(MSH\|\^.+)/s', '$1', $hl7);
     }
 }
