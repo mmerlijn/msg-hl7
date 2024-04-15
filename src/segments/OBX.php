@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Enums\ResultFlagEnum;
 use mmerlijn\msgRepo\Msg;
-use mmerlijn\msgRepo\Request;
+use mmerlijn\msgRepo\Option;
 use mmerlijn\msgRepo\Result;
 
 class OBX extends Segment implements SegmentInterface
@@ -20,7 +20,7 @@ class OBX extends Segment implements SegmentInterface
 
     public function getMsg(Msg $msg): Msg
     {
-        $msg->order->addResult(new Result(
+        $result = new Result(
             value: $this->getData(5),
             test_code: $this->getData(3),
             test_name: $this->getData(3, 0, 1),
@@ -32,7 +32,22 @@ class OBX extends Segment implements SegmentInterface
             abnormal_flag: ResultFlagEnum::set($this->getData(8)),
             done: in_array($this->getData(11), ["F", "C"]) ? true : false,
             change: ($this->getData(11) == "C") ? true : false,
-        ));
+        );
+        if ($this->getData(2) == "CE") {
+            $i = 0;
+            while ($this->getData(5, $i, 1)) {
+                $result->addOption(new Option(
+                    label: $this->getData(5, $i, 0),
+                    value: $this->getData(5, $i, 1),
+                    source: $this->getData(5, $i, 2),
+                ));
+                $i++;
+            }
+        }
+
+
+        $msg->order->addResult($result
+        );
         //dt of observation
         if (!$msg->order->dt_of_observation)
             $msg->order->dt_of_observation = $this->getDate(14);
@@ -49,7 +64,7 @@ class OBX extends Segment implements SegmentInterface
         //type of result
         if ($result->type_of_value) {
             $this->setData($result->type_of_value, 2);
-        } elseif ($result->other_test_name) {
+        } elseif ($result->other_test_name or !empty($result->options)) {
             $this->setData("CE", 2);
         } elseif (is_numeric($result->value)) {
             $this->setData("NM", 2);
@@ -85,6 +100,15 @@ class OBX extends Segment implements SegmentInterface
         //dt of analysis
         if ($msg->order->dt_of_analysis)
             $this->setDate($msg->order->dt_of_analysis, 19);
+        if (!empty($result->options)) {
+            $i = 0;
+            foreach ($result->options as $option) {
+                $this->setData($option->label, 5, $i, 0);
+                $this->setData($option->value, 5, $i, 1);
+                $this->setData($option->source, 5, $i, 2);
+                $i++;
+            }
+        }
         return $this;
     }
 

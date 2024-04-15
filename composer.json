@@ -12,7 +12,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": "^8.1",
-    "mmerlijn/msg-repo": "^v1.40",
+    "mmerlijn/msg-repo": "v1.41",
     "nesbot/carbon": "v2.*"
   },
   "require-dev": {
