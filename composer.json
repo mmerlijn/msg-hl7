@@ -9,11 +9,11 @@
       "email": "menno@mmerlijn.nl"
     }
   ],
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "require": {
-    "php": "^8.1",
-    "mmerlijn/msg-repo": "1.x-dev",
-    "nesbot/carbon": "v2.*"
+    "php": "^8.2",
+    "mmerlijn/msg-repo": "2.x-dev",
+    "nesbot/carbon": "3.x-dev"
   },
   "require-dev": {
     "fakerphp/faker": "2.0.x-dev",
@@ -37,6 +37,11 @@
     "sort-packages": true,
     "allow-plugins": {
       "pestphp/pest-plugin": true
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.x-dev"
     }
   }
 }
