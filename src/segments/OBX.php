@@ -22,7 +22,7 @@ class OBX extends Segment implements SegmentInterface
     {
         $result = new Result(
             value: $this->getData(5),
-            test_code: $this->getData(3),
+            test_code: $this->makeTestcode(),
             test_name: $this->getData(3, 0, 1),
             test_source: $this->getData(3, 0, 2),
             other_test_name: $this->getData(5, 0, 1),
@@ -133,6 +133,20 @@ class OBX extends Segment implements SegmentInterface
             "result_value" => '@ OBX[5][0][0][0] set/adjust $msg->order->results[..]->value',
             "result_status" => '@ OBX[11][0][0][0] set/adjust $msg->order->results[..]->done / change',
         ]);
+    }
+
+    private function makeTestcode(): string
+    {
+        if (!$this->getData(3)) {
+            if (strlen($this->getData(3, 0, 1)) > 20) {
+                $tmp = explode(" ", $this->getData(3, 0, 1));
+                $tmp = array_map(fn($v) => substr($v, 0, 1), $tmp);
+                return substr(strtoupper(implode("", $tmp)), 0, 20);
+            } else {
+                return substr(str_replace(" ", "_", strtoupper($this->getData(3, 0, 1))), 0, 20);
+            }
+        }
+        return $this->getData(3);
     }
 
 }

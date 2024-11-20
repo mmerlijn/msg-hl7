@@ -60,5 +60,24 @@ class OBXTest extends \mmerlijn\msgHl7\tests\TestCase
         $this->assertSame("Hart- en vaatziekten", $msg->order->results[0]->options[1]->value);
         $this->assertSame("HARTVAAT", $msg->order->results[0]->options[1]->label);
         $this->assertSame("99zda", $msg->order->results[0]->options[1]->source);
+
+        $obx = new OBX("OBX|1|CE|^Reden van verwijzen||ASTMA^Astma^99zda~FUP^Follow up^99zda~LOANDE^Anders, twijfel diagnose^99zda||||||F");
+        $msg = $obx->getMsg(new Msg());
+        $this->assertSame("Reden van verwijzen", $msg->order->results[0]->test_name);
+        $this->assertSame("REDEN_VAN_VERWIJZEN", $msg->order->results[0]->test_code);
+        $this->assertSame("ASTMA", $msg->order->results[0]->options[0]->label);
+        $this->assertSame("Astma", $msg->order->results[0]->options[0]->value);
+        $this->assertSame("FUP", $msg->order->results[0]->options[1]->label);
+        $this->assertSame("Follow up", $msg->order->results[0]->options[1]->value);
+        $this->assertSame("LOANDE", $msg->order->results[0]->options[2]->label);
+        $this->assertSame("Anders, twijfel diagnose", $msg->order->results[0]->options[2]->value);
+
+        $obx = new OBX("OBX|1|CE|^Contra indicatie voor salbutamol||CONTNEE^Nee^99zda||||||F");
+        $msg = $obx->getMsg(new Msg());
+        $this->assertSame("Contra indicatie voor salbutamol", $msg->order->results[0]->test_name);
+        $this->assertSame("CIVS", $msg->order->results[0]->test_code);
+        $this->assertSame("CONTNEE", $msg->order->results[0]->options[0]->label);
     }
+
+
 }
