@@ -71,3 +71,4 @@ OBR|2|ZD146489882||TIJD^TIJD^99zdl|||||||O|||||01101389^van Essen - Rubingh^A.A.
     $msgRepo = $hl7->getMsg(new Msg());
     expect($msgRepo->order->request_nr)->toBe("ZD146489882");
 });
+

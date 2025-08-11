@@ -77,6 +77,13 @@ class OBXTest extends \mmerlijn\msgHl7\tests\TestCase
         $this->assertSame("Contra indicatie voor salbutamol", $msg->order->results[0]->test_name);
         $this->assertSame("CIVS", $msg->order->results[0]->test_code);
         $this->assertSame("CONTNEE", $msg->order->results[0]->options[0]->label);
+
+        $obx = new OBX("OBX|5|CE|^Eierstokkanker^99zda||^Ja||||||F");
+        $msg = $obx->getMsg(new Msg());
+        $this->assertSame("Eierstokkanker", $msg->order->results[0]->test_name);
+        $this->assertSame("EIERSTOKKANKER", $msg->order->results[0]->test_code);
+        //$this->assertSame("JA", $msg->order->results[0]->options[0]->label);
+        $this->assertSame("Ja", $msg->order->results[0]->options[0]->value);
     }
 
 
