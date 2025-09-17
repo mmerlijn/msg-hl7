@@ -75,7 +75,10 @@ class PID extends Segment implements SegmentInterface
             }
         }
         if ($msg->patient->email) {
-            $this->setData($msg->patient->email, 13, 0, 3);
+            $repetition = count($this->data[13]);
+            $this->setData("NET", 13, $repetition, 1);
+            $this->setData("Internet", 13, $repetition, 2);
+            $this->setData($msg->patient->email, 13, $repetition, 3);
         }
     }
 
@@ -162,11 +165,11 @@ class PID extends Segment implements SegmentInterface
         //get phone
         if (isset($this->data[13])) {
             foreach ($this->data[13] as $k => $phone) {
-                $msg->patient->addPhone($this->getData(13, $k));
-
-            }
-            if ($this->getData(13, 0, 3)) {
-                $msg->patient->email = $this->getData(13, 0, 3);
+                if (in_array($this->getData(13, $k, 2), ["CP", "PH"])) {
+                    $msg->patient->addPhone($this->getData(13, $k));
+                } elseif ($this->getData(13, $k, 1) == "NET") {
+                    $msg->patient->email = $this->getData(13, $k, 3);
+                }
             }
         }
         if (isset($this->data[14])) {
