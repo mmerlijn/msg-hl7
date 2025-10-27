@@ -61,6 +61,9 @@ class ORC extends Segment implements SegmentInterface
         } else {
             $msg->patient->last_requester = $this->getData(12);
         }
+        if ($msg->order->organisation->agbcode) {
+            $msg->patient->gp = $msg->order->organisation->agbcode;
+        }
         return $msg;
     }
 

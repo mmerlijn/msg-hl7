@@ -32,6 +32,7 @@ class ORCTest extends \mmerlijn\msgHl7\tests\TestCase
         $this->assertSame('Doe', $msg->order->entered_by->name->own_lastname);
         $this->assertSame('J', $msg->order->entered_by->name->initials);
         $this->assertFalse($msg->order->priority);
+        $this->assertSame('01123456', $msg->patient->gp);
     }
 
     public function test_priority_getter()
