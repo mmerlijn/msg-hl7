@@ -7,6 +7,7 @@ use mmerlijn\msgRepo\Enums\OrderWhereEnum;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
 use mmerlijn\msgRepo\Request;
+use mmerlijn\msgRepo\TestCode;
 
 class OBR extends Segment implements SegmentInterface
 {
@@ -19,12 +20,26 @@ class OBR extends Segment implements SegmentInterface
 
     public function getMsg(Msg $msg): Msg
     {
-        $msg->order->addRequest(
-            new Request(
-                test_code: $this->getData(4),
-                test_name: $this->getData(4, 0, 1),
-                test_source: $this->getData(4, 0, 2)
-            ));
+        $request = new Request(
+            test: new TestCode(
+                code: $this->getData(4),
+                value: $this->getData(4, 0, 1),
+                source: $this->getData(4, 0, 2)
+            ),
+            other_test: new TestCode(
+                code: $this->getData(15),
+                value: $this->getData(15, 0, 0,1),
+                source: $this->getData(15, 0, 0,2),
+            ),
+            id: $this->getData(2),
+        );
+
+        $id = $this->getData(1);
+        if(!isset($msg->order->requests[$id-1])){
+            $msg->order->addRequest($request);
+        }else{
+            $msg->order->requests[$id-1] = $request;
+        }
         if (!$msg->order->request_nr) {
             $msg->order->request_nr = $this->getData(2);
         }
@@ -32,7 +47,7 @@ class OBR extends Segment implements SegmentInterface
             $msg->order->priority = true;
         }
 
-        $msg->order->dt_of_observation = $this->getDate(7);
+        $msg->order->observation_at = $this->getDate(7);
 
         $msg->order->where = OrderWhereEnum::set($this->getData(11));
 
@@ -49,21 +64,34 @@ class OBR extends Segment implements SegmentInterface
         return $msg;
     }
 
+    //for testing purposes only set first request
+    public function setMsg(Msg $msg): self
+    {
+        return $this->setRequest($msg, 0);
+
+    }
     public function setRequest(Msg $msg, int $request_key): self
     {
         $this->setData($request_key + 1, 1);
-        $this->setData($msg->order->request_nr, 2);
-        $this->setData($msg->order->requests[$request_key]->test_code, 4);
-        $this->setData($msg->order->requests[$request_key]->test_name, 4, 0, 1);
-        $this->setData($msg->order->requests[$request_key]->test_source ?: "99zdl", 4, 0, 2);
-        $this->setData($msg->order->priority ? "C" : "R", 5);
-        $this->setDate($msg->order->dt_of_observation, 7);
+        $this->setData($msg->order->requests[$request_key]->id?:$msg->order->request_nr, 2);
+
+        $this->setData($msg->order->requests[$request_key]->test->code, 4);
+        $this->setData($msg->order->requests[$request_key]->test->value, 4, 0, 1);
+        $this->setData($msg->order->requests[$request_key]->test->source ?: $msg->default_source, 4, 0, 2);
+
+        $this->setDate($msg->order->observation_at, 7);
         $this->setData($msg->order->where->getHl7(), 11);
 
         $this->setData($msg->order->requester->agbcode, 16);
         $this->setData($msg->order->requester->name->getLastnames(), 16, 0, 1);
         $this->setData($msg->order->requester->name->initials, 16, 0, 2);
         $this->setData($msg->order->requester->source, 16, 0, 8);
+
+        if($msg->order->requests[$request_key]->other_test->value) {
+            $this->setData($msg->order->requests[$request_key]->other_test->code, 15);
+            $this->setData($msg->order->requests[$request_key]->other_test->value, 15, 0, 0, 1);
+            $this->setData($msg->order->requests[$request_key]->other_test->source ?: $msg->default_source, 15, 0, 0, 2);
+        }
         if ($msg->order->start_date) {
             $this->setDate($msg->order->start_date, 20);
         }

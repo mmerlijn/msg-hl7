@@ -13,10 +13,6 @@ class Undefined extends Segment implements SegmentInterface
         return $msg;
     }
 
-    public function setMsg(Msg $msg): void
-    {
-
-    }
 
     public function validate(): void
     {

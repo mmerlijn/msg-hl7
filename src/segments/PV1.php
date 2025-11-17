@@ -14,8 +14,11 @@ class PV1 extends Segment implements SegmentInterface
         return $msg;
     }
 
-    public function setMsg(Msg $msg): void
+    public function setMsg(Msg $msg): self
     {
-
+        $this->setData("1",1);
+        $this->setData("O",2);
+        $this->setData("V",51);
+        return $this;
     }
 }

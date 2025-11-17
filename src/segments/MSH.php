@@ -14,11 +14,11 @@ class MSH extends Segment implements SegmentInterface
         "7.0.0" => 'datetime',
     ];
 
-    public function setMsg(Msg $msg): void
+    public function setMsg(Msg $msg): self
     {
 
         //default message splitters
-        $this->data[1][0][0][0] = "DEFAULT"; //"^~\&";
+        $this->data[1][0][0][0] = "DEFAULT"; // //"^~\&"; //"DEFAULT"
         //sending application
         $this->setData($msg->sender->application, 3);
         //sending facilty
@@ -43,9 +43,13 @@ class MSH extends Segment implements SegmentInterface
         if ($msg->msgType->version) {
             $this->setData($msg->msgType->version, 12);
         }
+        $this->setData("NLD", 17);
         if ($msg->msgType->charset) {
             $this->setData($msg->msgType->charset, 18);
+        }else{
+            $this->setData("8859/1", 18);
         }
+        return $this;
 
     }
 

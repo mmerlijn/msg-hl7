@@ -5,6 +5,7 @@ namespace mmerlijn\msgHl7\segments;
 
 use Carbon\Carbon;
 use mmerlijn\msgRepo\Msg;
+use mmerlijn\msgRepo\TestCode;
 
 class Segment implements SegmentInterface
 {
@@ -78,7 +79,7 @@ class Segment implements SegmentInterface
             $fields[] = preg_replace("/\.*(~*)$/", "", implode("~", $rep));
             //}
         }
-        return preg_replace("/\.*(\|*)$/", "", implode("|", $fields));
+        return str_replace("MSH|DEFAULT|","MSH|^~\\&",preg_replace("/\.*(\|*)$/", "", implode("|", $fields)));
     }
 
     public function getMsg(Msg $msg): Msg
@@ -86,7 +87,7 @@ class Segment implements SegmentInterface
         return $msg;
     }
 
-    public function setMsg(Msg $msg): void
+    public function setMsg(Msg $msg): self
     {
 
     }
@@ -109,6 +110,7 @@ class Segment implements SegmentInterface
         $this->data[$field][$repetition][$component][$subComponent] = preg_replace('/(\||~|\^|\&)/', '\$1', $value ?? "");
         return $this;
     }
+
 
     public function setDate(Carbon|string|null $value, int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): self
     {

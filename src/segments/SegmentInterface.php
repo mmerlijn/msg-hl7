@@ -12,7 +12,7 @@ interface SegmentInterface
 
     public function getMsg(Msg $msg): Msg;
 
-    public function setMsg(Msg $msg): void;
+    public function setMsg(Msg $msg): self;
 
     public function validate(): void;
 }

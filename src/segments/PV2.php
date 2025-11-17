@@ -3,6 +3,7 @@
 namespace mmerlijn\msgHl7\segments;
 
 use mmerlijn\msgRepo\Msg;
+use mmerlijn\msgRepo\TestCode;
 
 class PV2 extends Segment implements SegmentInterface
 {
@@ -10,17 +11,20 @@ class PV2 extends Segment implements SegmentInterface
 
     public function getMsg(Msg $msg): Msg
     {
-        $msg->order->admit_reason_code = $this->getData(3);
-        $msg->order->admit_reason_name = $this->getData(3, 0, 1);
+        $msg->order->admit_reason = new TestCode(
+            code:$this->getData(3),
+            value: $this->getData(3, 0, 1)
+        );
         return $msg;
     }
 
-    public function setMsg(Msg $msg): void
+    public function setMsg(Msg $msg): self
     {
-        if ($msg->order->admit_reason_code) {
-            $this->setData($msg->order->admit_reason_code, 3);
-            $this->setData($msg->order->admit_reason_name, 3, 0, 1);
-            $this->setData("99zda", 3, 0, 2);
+        if ($msg->order->admit_reason->code || $msg->order->admit_reason->value) {
+            $this->setData($msg->order->admit_reason->code, 3);
+            $this->setData($msg->order->admit_reason->value, 3, 0, 1);
+            $this->setData($msg->default_source, 3, 0, 2);
         }
+        return $this;
     }
 }

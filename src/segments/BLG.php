@@ -10,14 +10,12 @@ class BLG extends Segment implements SegmentInterface
 {
     public string $name = "BLG";
 
-    public function getMsg(Msg $msg): Msg
+    public function setMsg(Msg $msg): self
     {
-        return $msg;
+        $this->setData("CH", 2);
+        return $this;
     }
 
-    public function setMsg(Msg $msg): void
-    {
-    }
 
     public function validate(): void
     {

@@ -5,9 +5,11 @@ namespace mmerlijn\msgHl7\segments;
 use Carbon\Carbon;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Enums\ResultFlagEnum;
+use mmerlijn\msgRepo\Enums\ValueTypeEnum;
 use mmerlijn\msgRepo\Msg;
-use mmerlijn\msgRepo\Option;
+use mmerlijn\msgRepo\Observation;
 use mmerlijn\msgRepo\Result;
+use mmerlijn\msgRepo\TestCode;
 
 class OBX extends Segment implements SegmentInterface
 {
@@ -20,24 +22,29 @@ class OBX extends Segment implements SegmentInterface
 
     public function getMsg(Msg $msg): Msg
     {
-        $result = new Result(
+        if(empty($msg->order->requests)){
+            $msg->order->addRequest();
+        }
+        $observation = new Observation(
+            type: $this->getData(2),
             value: $this->getData(5),
-            test_code: $this->makeTestcode(),
-            test_name: $this->getData(3, 0, 1),
-            test_source: $this->getData(3, 0, 2),
-            other_test_name: $this->getData(5, 0, 1),
-            other_test_source: $this->getData(5, 0, 2),
+            test: new TestCode(
+                code: $this->getData(3),
+                value: $this->getData(3, 0, 1),
+                source: $this->getData(3, 0, 2),
+            ),
+
             units: $this->getData(6),
             reference_range: $this->getData(7),
             abnormal_flag: ResultFlagEnum::set($this->getData(8)),
-            done: in_array($this->getData(11), ["F", "C"]) ? true : false,
-            change: ($this->getData(11) == "C") ? true : false,
+            done: in_array($this->getData(11), ["F", "C"]),
+            change: $this->getData(11) == "C",
         );
-        if ($this->getData(2) == "CE") {
+        if ($observation->type == ValueTypeEnum::CE) {
             $i = 0;
             while ($this->getData(5, $i, 1)) {
-                $result->addOption(new Option(
-                    label: $this->getData(5, $i, 0),
+                $observation->addValue(new TestCode(
+                    code: $this->getData(5, $i, 0),
                     value: $this->getData(5, $i, 1),
                     source: $this->getData(5, $i, 2),
                 ));
@@ -46,66 +53,63 @@ class OBX extends Segment implements SegmentInterface
         }
 
 
-        $msg->order->addResult($result
-        );
+        $msg->order->requests[count($msg->order->requests)-1]->addObservation($observation);
         //dt of observation
-        if (!$msg->order->dt_of_observation)
-            $msg->order->dt_of_observation = $this->getDate(14);
+        if (!$msg->order->observation_at)
+            $msg->order->observation_at = $this->getDate(14);
         //dt of analysis
-        if (!$msg->order->dt_of_analysis)
-            $msg->order->dt_of_analysis = $this->getDate(19);
+        if (!$msg->order->analysis_at)
+            $msg->order->analysis_at = $this->getDate(19);
         return $msg;
     }
 
-    public function setResults(Result $result, Msg $msg, $result_key): self
+    // for testing purposes only
+    public function setMsg(Msg $msg): self
+    {
+        return $this->setObservation($msg,0,0);
+    }
+
+    public function setObservation(Msg $msg, $request_key, $result_key): self
     {
         //count id
         $this->setData($result_key + 1, 1);
         //type of result
-        if ($result->type_of_value) {
-            $this->setData($result->type_of_value, 2);
-        } elseif ($result->other_test_name or !empty($result->options)) {
-            $this->setData("CE", 2);
-        } elseif (is_numeric($result->value)) {
-            $this->setData("NM", 2);
-        } else {
-            $this->setData("ST", 2);
-        }
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->type->value, 2);
         //test code / name
-        $this->setData($result->test_code, 3);
-        $this->setData($result->test_name, 3, 0, 1);
-        $this->setData($result->test_source ?: '99zdl', 3, 0, 2);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->test->code, 3);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->test->value, 3, 0, 1);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->test->source ?: $msg->default_source, 3, 0, 2);
         //result
-        $this->setData($result->value, 5);
-        $this->setData($result->other_test_name, 5, 0, 1);
-        $this->setData($result->other_test_source, 5, 0, 2);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->value, 5);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->other_test->value, 5, 0, 1);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->other_test->source, 5, 0, 2);
         //units
-        $this->setData($result->units, 6);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->units, 6);
         //reference range
-        $this->setData($result->reference_range, 7);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->reference_range, 7);
         //abnormal flag
-        $this->setData($result->abnormal_flag->value, 8);
-        //result status
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->abnormal_flag->value, 8);
 
-        if ($result->change) {
+        //result status
+        if ($msg->order->requests[$request_key]->observations[$result_key]->change) {
             $this->setData("C", 11); //correction/change
-        } elseif ($result->done) {
+        } elseif ($msg->order->requests[$request_key]->observations[$result_key]->done) {
             $this->setData("F", 11); //final
         } else {
             $this->setData("P", 11); //Preliminary results
         }
         //dt of observation
-        if ($msg->order->dt_of_observation)
-            $this->setDate($msg->order->dt_of_observation, 14);
+        if ($msg->order->observation_at)
+            $this->setDate($msg->order->observation_at, 14);
         //dt of analysis
-        if ($msg->order->dt_of_analysis)
-            $this->setDate($msg->order->dt_of_analysis, 19);
-        if (!empty($result->options)) {
+        if ($msg->order->analysis_at)
+            $this->setDate($msg->order->analysis_at, 19);
+        if ($msg->order->requests[$request_key]->observations[$result_key]->hasValues()) {
             $i = 0;
-            foreach ($result->options as $option) {
-                $this->setData($option->label, 5, $i, 0);
-                $this->setData($option->value, 5, $i, 1);
-                $this->setData($option->source, 5, $i, 2);
+            foreach ($msg->order->requests[$request_key]->observations[$result_key]->values as $v) {
+                $this->setData($v->code, 5, $i, 0);
+                $this->setData($v->value, 5, $i, 1);
+                $this->setData($v->source, 5, $i, 2);
                 $i++;
             }
         }
@@ -129,9 +133,9 @@ class OBX extends Segment implements SegmentInterface
         ], [
             "result_id" => '@ OBX[1][0][0][0] debug OBX',
             "result_type" => '@ OBX[2][0][0][0] debug OBX',
-            "result_identifier" => '@ OBX[3][0][0][0] set/adjust $msg->order->results[..]->test_code',
-            "result_value" => '@ OBX[5][0][0][0] set/adjust $msg->order->results[..]->value',
-            "result_status" => '@ OBX[11][0][0][0] set/adjust $msg->order->results[..]->done / change',
+            "result_identifier" => '@ OBX[3][0][0][0] set/adjust $msg->order->observations[..]->test_code',
+            "result_value" => '@ OBX[5][0][0][0] set/adjust $msg->order->observations[..]->value',
+            "result_status" => '@ OBX[11][0][0][0] set/adjust $msg->order->observations[..]->done / change',
         ]);
     }
 

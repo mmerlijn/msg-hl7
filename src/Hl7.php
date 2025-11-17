@@ -1,8 +1,8 @@
 <?php
-
 namespace mmerlijn\msgHl7;
 
 use mmerlijn\msgHl7\helpers\Encoding;
+use mmerlijn\msgHl7\segments\BLG;
 use mmerlijn\msgHl7\segments\IN1;
 use mmerlijn\msgHl7\segments\MSH;
 use mmerlijn\msgHl7\segments\NTE;
@@ -12,8 +12,9 @@ use mmerlijn\msgHl7\segments\ORC;
 use mmerlijn\msgHl7\segments\PID;
 use mmerlijn\msgHl7\segments\PV1;
 use mmerlijn\msgHl7\segments\PV2;
-use mmerlijn\msgHl7\segments\Segment;
 use mmerlijn\msgHl7\segments\SegmentInterface;
+use mmerlijn\msgHl7\segments\SPM;
+use mmerlijn\msgHl7\segments\TQ1;
 use mmerlijn\msgHl7\segments\Undefined;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Msg;
@@ -21,9 +22,23 @@ use mmerlijn\msgRepo\Msg;
 class Hl7
 {
     private string $msg = "";
-    public string $type = "ORM";
     public array $segments = [];
-    public bool $repeat_ORC = false;
+    public bool $repeat_ORC = true;
+    public bool $use_tq1 = false;
+
+    protected array $useSegments=[
+        "MSH",
+        "PID",
+        "PV1",
+        "PV2",
+        "IN1",
+        "ORC",
+        "OBR",
+        "OBX",
+        "NTE",
+        "TQ1",
+        "SPM",
+    ];
     public string $datetime_format = "YmdHisO";
 
     public function __construct(string $hl7 = "")
@@ -40,7 +55,18 @@ class Hl7
         $this->repeat_ORC = $bool;
         return $this;
     }
-
+    public function useTQ1():self
+    {
+        if(!in_array("TQ1",$this->useSegments)){
+            $this->useSegments[] = "TQ1";
+        }
+        return $this;
+    }
+    public function setUseSegments(array $segments):self
+    {
+        $this->useSegments = array_merge($segments, $this->useSegments);
+        return $this;
+    }
     public function setDatetimeFormat(string $format): self
     {
         $this->datetime_format = $format;
@@ -105,80 +131,127 @@ class Hl7
         if (!$msg) {
             $msg = new Msg();
         }
+        $previous_segment = null;
         foreach ($this->segments as $segment) {
             $msg = $segment->getMsg($msg);
+            if($segment->name == "NTE"){
+                $msg = $segment->getComment($msg, $previous_segment);
+            }
+            if(in_array($segment->name, ["MSH","PID","OBR","OBX"])){
+                $previous_segment = $segment->name;
+            }
         }
         return $msg;
     }
 
     public function setMsg(Msg $msg): self
     {
-        $this->type = $msg->msgType->type ?: "ORM";
-
-        if (empty($this->segments)) {
-            $this->createDefaultSegments();
+        if(!$this->hasSegment("MSH")) {
+            $this->segments = [match ($msg->msgType->structure) {
+                "OML_O21" => (new MSH("MSH|DEFAULT||||||||OML^O21^OML_O21||P|2.5.1|||||NLD|8859/1"))->setMsg($msg),
+                "ORM_O01" => (new MSH("MSH|DEFAULT||||||||ORM^O01^ORM_O01||P|2.4|||||NLD|8859/1"))->setMsg($msg),
+                default => (new MSH("MSH|DEFAULT||||||||||||||||NLD|8859/1"))->setMsg($msg),
+            }, ...$this->segments];
+        }else{
+            $this->segments[$this->findSegmentKey("MSH")]->setMsg($msg);
         }
-        //for storing present data
-        $orc_line = "";
-        $obr_line = [];
-        //remove order segments and set msg
-        foreach ($this->segments as $k => $segment) {
-            if (in_array($segment->name, ["ORC", "OBR", "OBX", "NTE"])) {
-                if ($segment->name == "ORC") { //store present data ORC
-                    $orc_line = $segment->line;
+        if($msg->msgType->structure == "OML_O21" and $msg->hasComments() and in_array("NTE",$this->useSegments)){
+            if($this->segments[1]?->name != "NTE" ){
+                //make space for NTE after MSH
+                array_splice($this->segments,1,0,[(new NTE())->setComment(0, $msg->comments[0])]);
+            }else{
+                foreach ($msg->comments as $id => $comment) {
+                    $this->segments[$id+1]->setComment($id, $comment);
                 }
-                if ($segment->name == "OBR") { //store present data OBR
-                    $obr_line[$segment->getData(4)] = $segment->line;
-                }
-                unset($this->segments[$k]);
-            } else {
-                $this->segments[$k]->setMsg($msg);
             }
         }
-        $this->segments = array_values($this->segments);
-        if (!empty($msg->order->requests)) {
-            $orc_done = false;
-            foreach ($msg->order->requests as $k => $request) {
-                if ($this->repeat_ORC or $orc_done == false) {
-                    $this->segments[] = (new ORC($orc_line))->setOrder($msg);
-                    $orc_done = true;
+        //set patient segments
+        if(!$this->hasSegment("PID")) {
+            $this->segments[] = (new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD"))->setMsg($msg);
+            if($msg->patient->hasComments() and in_array("NTE",$this->useSegments)){
+                foreach ($msg->patient->comments as $id => $comment) {
+                    $this->segments[] = (new NTE)->setComment($id, $comment);
                 }
-                $this->segments[] = (new OBR($obr_line[$request->test_code] ?? ""))->setRequest($msg, $k);
-                $specific_orcs = [];
-                foreach ($msg->order->results as $k2 => $result) {
-                    if ($result->only_for_request_test_code) {
-                        $specific_orcs[] = $result->only_for_request_test_code;
+            }
+        }else{
+            $pid_key = $this->findSegmentKey("PID");
+            $this->segments[$pid_key]->setMsg($msg);
+            //insert NTE comments after PID
+            if($msg->patient->hasComments() and in_array("NTE",$this->useSegments)){
+                $k = $pid_key+1;
+                foreach ($msg->patient->comments as $id => $comment) {
+                    if($this->segments[$k]?->name != "NTE" ){
+                        //make space for NTE after PID
+                        array_splice($this->segments,$k,0,[(new NTE)->setComment($id, $comment)]);
+                    }else{
+                        $this->segments[$k]->setComment($id, $comment);
                     }
+                    $k++;
                 }
-                $counter = 0;
-                foreach ($msg->order->results as $k2 => $result) {
-                    if ($result->only_for_request_test_code == $request->test_code or ($result->only_for_request_test_code == "" and !in_array($request->test_code, $specific_orcs))) {
-                        $this->segments[] = (new OBX())->setResults($result, $msg, $counter);
-                        $counter++;
-                        if (!empty($result->comments)) {
-                            foreach ($result->comments as $id => $comment) {
-                                $this->segments[] = (new NTE())->setComment($id, $comment);
-                            }
-                        }
+            }
+        }
+        if(!$this->hasSegment("PV1")) {
+            $this->segments[] = (new PV1("PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||||||V"))->setMsg($msg);
+        }else{
+            $this->segments[$this->findSegmentKey("PV1")]->setMsg($msg);
+        }
+        if(!$this->hasSegment("PV2")) {
+            $this->segments[] = (new PV2("PV2|||"))->setMsg($msg);
+        }else{
+            $this->segments[$this->findSegmentKey("PV2")]->setMsg($msg);
+        }
+        if(!$this->hasSegment("IN1")) {
+            $this->segments[] = (new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||"))->setMsg($msg);
+        }else{
+            $this->segments[$this->findSegmentKey("IN1")]->setMsg($msg);
+        }
+        //reset all other segments
+        $k =$this->findSegmentKey("IN1");
+        $this->segments = array_slice($this->segments,0,$k+1);
 
-                    }
-
+        //set order segments
+        foreach ($msg->order->requests as $req_k => $request) {
+            if ($this->repeat_ORC or $req_k == 0) {
+                $this->segments[] = (new ORC)->setOrder($msg);
+            }
+            if(in_array("TQ1",$this->useSegments)){
+                $this->segments[] = (new TQ1)->setRequest($msg,$req_k);
+            }
+            $this->segments[] = (new OBR)->setRequest($msg, $req_k);
+            if($request->hasComments()){
+                foreach ($request->comments as $id => $comment) {
+                    $this->segments[] = (new NTE())->setComment($id, $comment);
                 }
-                if (!empty($request->comments)) {
-                    foreach ($request->comments as $id => $comment) {
+            }
+            foreach ($request?->obsservations as $obs_k => $observation) {
+                $this->segments[] = (new OBX())->setObservation($msg, $req_k, $obs_k);
+                if($observation->hasComments()){
+                    foreach ($observation->comments as $id => $comment) {
                         $this->segments[] = (new NTE())->setComment($id, $comment);
                     }
                 }
             }
-        }
-        if (!empty($msg->comments)) {
-            foreach ($msg->comments as $id => $comment) {
-                $this->segments[] = (new NTE())->setComment($id, $comment);
+            if(in_array("SPM",$this->useSegments) && $request->hasSpecimen()){
+                foreach ($request->specimens as $sp_k => $specimen) {
+                    $this->segments[] = (new SPM())->setSpecimen($msg, $req_k,$sp_k);
+                }
             }
+        }
+        if(in_array("BLG",$this->useSegments)){
+            $this->segments[] = (new BLG("BLG||CH"))->setMsg($msg);
         }
         return $this;
     }
 
+    private function hasSegment(string $SEG): bool
+    {
+        foreach ($this->segments as $segment) {
+            if ($segment->name == $SEG) {
+                return true;
+            }
+        }
+        return false;
+    }
     //search for first segment occurrence
     public function findSegmentKey(string $SEG, $number = 0): int
     {
@@ -239,27 +312,7 @@ class Hl7
     }
 
 
-    //MEDLAB
-    protected function createDefaultSegments()
-    {
-        if ($this->type == "ORM") {
-            $this->segments = [
-                (new MSH("MSH|DEFAULT||||||||ORM^O01^ORM_O01||P|2.4|||||NLD|8859/1"))->setDatetimeFormat($this->datetime_format),
-                (new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD"))->setDatetimeFormat($this->datetime_format),
-                (new PV1("PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V"))->setDatetimeFormat($this->datetime_format),
-                (new PV2("PV2|||"))->setDatetimeFormat($this->datetime_format),
-                (new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||"))->setDatetimeFormat($this->datetime_format),
-            ];
-        } elseif ($this->type == "OML") {
-            $this->segments = [
-                (new MSH("MSH|DEFAULT||||||||OML^021^OML_O21||P|2.5|||||NLD|8859/1"))->setDatetimeFormat($this->datetime_format),
-                (new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD"))->setDatetimeFormat($this->datetime_format),
-            ];
-        } elseif ($this->type == "") {
-            $this->segments = [
-            ];
-        }
-    }
+
 
     private function setHl7(string $hl7): void
     {
