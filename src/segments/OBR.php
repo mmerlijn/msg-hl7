@@ -3,6 +3,7 @@
 namespace mmerlijn\msgHl7\segments;
 
 use mmerlijn\msgHl7\validation\Validator;
+use mmerlijn\msgRepo\Contact;
 use mmerlijn\msgRepo\Enums\OrderWhereEnum;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
@@ -28,17 +29,17 @@ class OBR extends Segment implements SegmentInterface
             ),
             other_test: new TestCode(
                 code: $this->getData(15),
-                value: $this->getData(15, 0, 0,1),
-                source: $this->getData(15, 0, 0,2),
+                value: $this->getData(15, 0, 0, 1),
+                source: $this->getData(15, 0, 0, 2),
             ),
             id: $this->getData(2),
         );
 
         $id = $this->getData(1);
-        if(!isset($msg->order->requests[$id-1])){
+        if (!isset($msg->order->requests[$id - 1])) {
             $msg->order->addRequest($request);
-        }else{
-            $msg->order->requests[$id-1] = $request;
+        } else {
+            $msg->order->requests[$id - 1] = $request;
         }
         if (!$msg->order->request_nr) {
             $msg->order->request_nr = $this->getData(2);
@@ -61,6 +62,17 @@ class OBR extends Segment implements SegmentInterface
             $msg->order->requester->source = $this->getData(16, 0, 8);
         }
         $msg->order->start_date = $this->getDate(20);
+
+        if ($this->getData(28)) { //copy_to
+            $msg->order->copy_to = new Contact(
+                agbcode: $this->getData(28),
+                name: new Name(
+                    initials: $this->getData(28, 0, 2),
+                    name: $this->getData(28, 0, 1),
+                ),
+                source: $this->getData(28, 0, 8),
+            );
+        }
         return $msg;
     }
 
@@ -70,10 +82,11 @@ class OBR extends Segment implements SegmentInterface
         return $this->setRequest($msg, 0);
 
     }
+
     public function setRequest(Msg $msg, int $request_key): self
     {
         $this->setData($request_key + 1, 1);
-        $this->setData($msg->order->requests[$request_key]->id?:$msg->order->request_nr, 2);
+        $this->setData($msg->order->requests[$request_key]->id ?: $msg->order->request_nr, 2);
 
         $this->setData($msg->order->requests[$request_key]->test->code, 4);
         $this->setData($msg->order->requests[$request_key]->test->value, 4, 0, 1);
@@ -87,13 +100,20 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requester->name->initials, 16, 0, 2);
         $this->setData($msg->order->requester->source, 16, 0, 8);
 
-        if($msg->order->requests[$request_key]->other_test->value) {
+        if ($msg->order->requests[$request_key]->other_test->value) {
             $this->setData($msg->order->requests[$request_key]->other_test->code, 15);
             $this->setData($msg->order->requests[$request_key]->other_test->value, 15, 0, 0, 1);
             $this->setData($msg->order->requests[$request_key]->other_test->source ?: $msg->default_source, 15, 0, 0, 2);
         }
         if ($msg->order->start_date) {
             $this->setDate($msg->order->start_date, 20);
+        }
+        //set copy_to
+        if ($msg->order->copy_to?->agbcode) {
+            $this->setData($msg->order->copy_to->agbcode, 28);
+            $this->setData($msg->order->copy_to->name->getLastnames(), 28, 0, 1);
+            $this->setData($msg->order->copy_to->name->initials, 28, 0, 2);
+            $this->setData($msg->order->copy_to->source, 28, 0, 8);
         }
         return $this;
     }
