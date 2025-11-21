@@ -37,7 +37,7 @@ class TQ1 extends Segment implements SegmentInterface
 
         $this->setData($request_key + 1, 1);
         //priority
-        if ($msg->order->requests[$request_key + 1]->priority or $msg->order->priority) {
+        if ($msg->order->requests[$request_key]->priority or $msg->order->priority) {
             $this->setData("C", 9);
             //TODO fill
         } else {
