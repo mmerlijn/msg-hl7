@@ -234,7 +234,7 @@ class Hl7
                     $this->segments[] = (new NTE())->setComment($id, $comment);
                 }
             }
-            foreach ($request?->obsservations as $obs_k => $observation) {
+            foreach ($request?->observations ?? [] as $obs_k => $observation) {
                 $this->segments[] = (new OBX())->setObservation($msg, $req_k, $obs_k);
                 if ($observation->hasComments()) {
                     foreach ($observation->comments as $id => $comment) {
