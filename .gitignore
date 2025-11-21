@@ -1,9 +1,15 @@
+/.phpunit.cache
+/bootstrap/ssr
 /node_modules
 /vendor
-/.idea
+.DS_Store
+.env
+.phpactor.json
 .phpunit.result.cache
-npm-debug.log
-yarn-error.log
-composer.lock
-.idea/
+/auth.json
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
 

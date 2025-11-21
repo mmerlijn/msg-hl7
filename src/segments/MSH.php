@@ -40,13 +40,11 @@ class MSH extends Segment implements SegmentInterface
         //processingId
         $this->setData("P", 11);
         //version
-        if ($msg->msgType->version) {
-            $this->setData($msg->msgType->version, 12);
-        }
+        $this->setData($msg->msgType->version ?: "2.4", 12);
         $this->setData("NLD", 17);
         if ($msg->msgType->charset) {
             $this->setData($msg->msgType->charset, 18);
-        }else{
+        } else {
             $this->setData("8859/1", 18);
         }
         return $this;

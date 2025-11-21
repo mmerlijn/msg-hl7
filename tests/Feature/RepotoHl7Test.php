@@ -8,6 +8,7 @@ use mmerlijn\msgHl7\Hl7;
 use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Contact;
 use mmerlijn\msgRepo\Enums\OrderControlEnum;
+use mmerlijn\msgRepo\Enums\OrderWhereEnum;
 use mmerlijn\msgRepo\Enums\PatientSexEnum;
 use mmerlijn\msgRepo\Id;
 use mmerlijn\msgRepo\Insurance;
@@ -17,6 +18,7 @@ use mmerlijn\msgRepo\Patient;
 use mmerlijn\msgRepo\Phone;
 use mmerlijn\msgRepo\Request;
 use mmerlijn\msgRepo\Result;
+use mmerlijn\msgRepo\TestCode;
 
 
 it('create hl7', function () {
@@ -81,3 +83,43 @@ it('create hl7', function () {
 
 
 });
+
+
+it('can create msg', function () {
+
+    $msg = new Msg();
+    $msg->setPatient(new Patient(
+        sex: PatientSexEnum::FEMALE, name: new Name(initials: "A", own_lastname: "Klass"), dob: Carbon::now()->subYears(20), bsn: "123456782", address: new Address(postcode: "8000AA", city: 'Adam', street: "straat", building: "30a"), phones: [new Phone("0612121212")]
+    ));
+    $msg->patient->addId(
+        new Id(
+            id: "ZD12345678", authority: "ZorgDomein", code: "VN"
+        )
+    )->addId(
+        new Id(
+            id: 45, authority: "SALTNET", code: "VN"
+        )
+    );
+    $msg->sender = new Contact(
+        application: 'SALTNET',
+        facility: "LBSPATIENTNR"
+    );
+    $msg->order->requester = new Contact(
+        agbcode: "01123456",
+        name: new Name(initials: "A.", own_lastname: "Testarts"), source: "VEKTIS"
+    );
+    $msg->order->entered_by = new Contact(
+        agbcode: "01123456",
+        name: new Name(initials: "A.", own_lastname: "Testarts"), source: "VEKTIS"
+    );
+    $msg->order->request_nr = 'FK' . (100000000 + 45);
+    $msg->order->where = OrderWhereEnum::EMPTY;
+    $msg->order->addRequest(
+        new Request(
+            test: new TestCode(code: "DUMMY", value: "DUMMY", source: "L")
+        )
+    );
+    $hl7 = (new Hl7())->setMsg($msg)->setDatetimeFormat("YmdHis")->setUseSegments(['MSH', 'PID', 'PV1', 'IN1', 'ORC', 'OBR']);
+    dd($hl7->write());
+});
+

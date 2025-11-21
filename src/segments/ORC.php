@@ -36,7 +36,8 @@ class ORC extends Segment implements SegmentInterface
 
         $msg->order->priority = match ($this->getData(7, 0, 5)) {
             "C", "S", "CITO" => true,
-            default => false,
+            "R" => false,
+            default => null,
         };
         $msg->order->start_date = $this->getDate(7, 0, 3);
         //transaction datetime
@@ -115,10 +116,12 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->request_nr, 2);
         $this->setData($msg->order->request_nr, 4);
         //priority
-        $this->setData($msg->order->priority ? "C" : "R", 7, 0, 5);
+        if ($msg->order->priority !== null) {
+            $this->setData($msg->order->priority ? "C" : "R", 7, 0, 5);
+        }
         $this->setDate($msg->order->start_date, 7, 0, 3);
         //transaction datetime
-        $this->setDate($msg->order->request_at, 9);
+        $this->setDate($msg->order->request_at ?: Carbon::now(), 9);
 
         //entered by
         $this->setData($msg->order->entered_by->agbcode, 10);
@@ -149,16 +152,18 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->organisation->source, 21, 0, 5);
 
         //set address
-        $this->setData($msg->sender->address->street . " " . $msg->sender->address->building, 22);
-        $this->setData($msg->sender->address->street, 22, 0, 0, 1);
-        $this->setData($msg->sender->address->building_nr, 22, 0, 0, 2);
-        $this->setData($msg->sender->address->building_addition, 22, 0, 1);
-        $this->setData($msg->sender->address->city, 22, 0, 2);
-        $this->setData($msg->sender->address->postcode, 22, 0, 4);
-        $this->setData($msg->sender->address->country ?: "NL", 22, 0, 5);
+        if ($msg->sender->address->street) {
+            $this->setData($msg->sender->address->street . " " . $msg->sender->address->building, 22);
+            $this->setData($msg->sender->address->street, 22, 0, 0, 1);
+            $this->setData($msg->sender->address->building_nr, 22, 0, 0, 2);
+            $this->setData($msg->sender->address->building_addition, 22, 0, 1);
+            $this->setData($msg->sender->address->city, 22, 0, 2);
+            $this->setData($msg->sender->address->postcode, 22, 0, 4);
+            $this->setData($msg->sender->address->country ?: "NL", 22, 0, 5);
+        }
 
         //set telephone
-        if ($msg->sender->phone) {
+        if ($msg->sender->phone->number) {
             $this->setData($msg->sender->phone, 23);
             $this->setData("WPN", 23, 0, 1);
             $this->setData("PH", 23, 0, 2);

@@ -17,6 +17,7 @@
   },
   "require-dev": {
     "fakerphp/faker": "2.0.x-dev",
+    "larapack/dd": "^1.1",
     "pestphp/pest": "4.x-dev"
   },
   "autoload": {
