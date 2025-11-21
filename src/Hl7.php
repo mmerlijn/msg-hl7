@@ -223,7 +223,7 @@ class Hl7
         //set order segments
         foreach ($msg->order->requests as $req_k => $request) {
             if ($this->repeat_ORC or $req_k == 0) {
-                $this->segments[] = (new ORC)->setOrder($msg);
+                $this->segments[] = (new ORC)->setOrder($msg, $req_k);
             }
             if (in_array("TQ1", $this->useSegments)) {
                 $this->segments[] = (new TQ1)->setRequest($msg, $req_k);

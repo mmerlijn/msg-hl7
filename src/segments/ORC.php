@@ -107,11 +107,11 @@ class ORC extends Segment implements SegmentInterface
         return $this->setOrder($msg);
     }
 
-    public function setOrder($msg): self
+    public function setOrder(Msg $msg, int $nr = 1): self
     {
         //order controle
         $this->setData($msg->order->control->getHl7(), 1);
-        $this->setData($msg->order->requests[count($msg->order->requests)]->id ?: $msg->order->request_nr, 2);
+        $this->setData($msg->order->requests[$nr - 1]?->id ?: $msg->order->request_nr, 2);
         //requestnr
         $this->setData($msg->order->request_nr, 2);
         $this->setData($msg->order->request_nr, 4);
