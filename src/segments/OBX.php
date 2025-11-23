@@ -22,7 +22,7 @@ class OBX extends Segment implements SegmentInterface
 
     public function getMsg(Msg $msg): Msg
     {
-        if(empty($msg->order->requests)){
+        if (empty($msg->order->requests)) {
             $msg->order->addRequest();
         }
         $observation = new Observation(
@@ -53,7 +53,7 @@ class OBX extends Segment implements SegmentInterface
         }
 
 
-        $msg->order->requests[count($msg->order->requests)-1]->addObservation($observation);
+        $msg->order->requests[count($msg->order->requests) - 1]->addObservation($observation);
         //dt of observation
         if (!$msg->order->observation_at)
             $msg->order->observation_at = $this->getDate(14);
@@ -66,7 +66,7 @@ class OBX extends Segment implements SegmentInterface
     // for testing purposes only
     public function setMsg(Msg $msg): self
     {
-        return $this->setObservation($msg,0,0);
+        return $this->setObservation($msg, 0, 0);
     }
 
     public function setObservation(Msg $msg, $request_key, $result_key): self
@@ -81,8 +81,11 @@ class OBX extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->observations[$result_key]->test->source ?: $msg->default_source, 3, 0, 2);
         //result
         $this->setData($msg->order->requests[$request_key]->observations[$result_key]->value, 5);
-        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->other_test->value, 5, 0, 1);
-        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->other_test->source, 5, 0, 2);
+        foreach ($msg->order->requests[$request_key]->observations[$result_key]->values as $i => $testCode) {
+            $this->setData($testCode->code, 5, $i, 0);
+            $this->setData($testCode->value, 5, $i, 1);
+            $this->setData($testCode->source, 5, $i, 2);
+        }
         //units
         $this->setData($msg->order->requests[$request_key]->observations[$result_key]->units, 6);
         //reference range
