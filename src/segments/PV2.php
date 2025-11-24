@@ -13,7 +13,8 @@ class PV2 extends Segment implements SegmentInterface
     {
         $msg->order->admit_reason = new TestCode(
             code: $this->getData(3),
-            value: $this->getData(3, 0, 1)
+            value: $this->getData(3, 0, 1),
+            source: $this->getData(3, 0, 2),
         );
         $this->msgSegmentGetter($msg);
         return $msg;
@@ -24,7 +25,7 @@ class PV2 extends Segment implements SegmentInterface
         if ($msg->order->admit_reason->code || $msg->order->admit_reason->value) {
             $this->setData($msg->order->admit_reason->code, 3);
             $this->setData($msg->order->admit_reason->value, 3, 0, 1);
-            $this->setData($msg->default_source, 3, 0, 2);
+            $this->setData($msg->order->admit_reason->source ?: $msg->default_source, 3, 0, 2);
         }
         $this->msgSegmentSetter($msg);
         return $this;

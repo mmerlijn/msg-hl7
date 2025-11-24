@@ -219,10 +219,11 @@ class Segment implements SegmentInterface
         foreach ($msg->hl7Data as $s => $v) {
             if (str_starts_with($s, $this->name)) {
                 $p = explode("_", $s);
-                if (($p[1] ?? null) == $nr) {
-                    $i = explode(".", $p[0]);
-                    $this->setData($i[1] ?? 1, $i[2] ?? 0, $i[3] ?? 0, $i[4] ?? 0);
+                if (isset($p[1]) and $p[1] != $nr) {
+                    continue;
                 }
+                $i = explode(".", $p[0]);
+                $this->setData($v, $i[1] ?? 1, $i[2] ?? 0, $i[3] ?? 0, $i[4] ?? 0);
             }
         }
         return $this;
@@ -233,10 +234,12 @@ class Segment implements SegmentInterface
         foreach ($msg->hl7Data as $s => $v) {
             if (str_starts_with($s, $this->name)) {
                 $p = explode("_", $s);
-                if (($p[1] ?? null) == $nr) {
-                    $i = explode(".", $p[0]);
-                    $msg->hl7Data[$s] = $this->getData($i[1] ?? 1, $i[2] ?? 0, $i[3] ?? 0, $i[4] ?? 0);
+                if (isset($p[1]) and $p[1] != $nr) {
+                    continue;
                 }
+                $i = explode(".", $p[0]);
+                $msg->hl7Data[$s] = $this->getData($i[1] ?? 1, $i[2] ?? 0, $i[3] ?? 0, $i[4] ?? 0);
+
             }
         }
     }

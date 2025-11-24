@@ -51,10 +51,10 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
         ->setDatetimeFormat("YmdHis")
         ->setRepeatORC()
         ->getMsg(new Msg());
-    $msg->order->addRequest(new Request(test_code: "ABC", test_name: "A_B_C"));
+    $msg->order->addRequest(new Request(test: new \mmerlijn\msgRepo\TestCode(code: "ABC", value: "A_B_C", source: "99zdl")));
     $hl7->setMsg($msg);
-    expect($hl7->datetime_format)->toBe("YmdHis");
-    expect($hl7->segments[0]->data[7][0][0][0])->toBeInstanceOf(Carbon::class);
+    expect($hl7->datetime_format)->toBe("YmdHis")
+        ->and($hl7->segments[0]->data[7][0][0][0])->toBeInstanceOf(Carbon::class);
     $string = $hl7->write(true);
     expect($string)->toContain("ABC^A_B_C^99zdl")
         ->toContain("|^Doe^J||01123456^van der Plas")
@@ -94,7 +94,7 @@ BLG||CH";
     $hl7_new->addSegment((new Z03())->setData("AZLD", 1));
     $hl7_new->removeSegment("BLG");
     //var_dump($hl7_new->segments);
-    expect($hl7_new->setDatetimeFormat('YmdHi')->write())
+    expect($hl7_new->setDatetimeFormat('YmdHi')->setUseSegments(['MSH', 'PID', 'PV1', 'PV2', 'IN1', 'ORC', 'OBR', 'OBX', 'SPM', 'Z03'])->write())
         ->toBe(
             "MSH|^~\&|LabOnline|SALT|LabOnline|LOL_NIPT|202303131553||OML^O21^OML_O21|361288|P|2.5||||||8859/15" . chr(13) .
             "PID|1||23-000058^^^^PI~021622401^^^NLMINBIZA^NNNLD||van Joost&van&Joost^A^A^^^^L||19910101|F|||TEstweg 1&TEstweg&1^a^Oosterhout^^4901CS^NL^M||0612300123^^CP" . chr(13) .
@@ -142,12 +142,14 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
 ";
     $hl7 = new Hl7($hl7);
     $msg = $hl7->getMsg(new Msg());
-    $msg->order->addRequest(new Request(test_code: "PRODUCT", test_name: "PRODUCT"));
-    $msg->order->addResult(new Result(value: "1", test_code: "GROEN", test_name: "is groen", only_for_request_test_code: 'PRODUCT'));
-    $msg->order->addResult(new Result(value: "2", test_code: "ROOD", test_name: "is rood", only_for_request_test_code: 'PRODUCT'));
-    $msg->order->addResult(new Result(value: "3", test_code: "BLAUW", test_name: "is blauw"));
+    $msg->default_source = '99zdl';
+    $msg->order->addRequest(new Request(test: new \mmerlijn\msgRepo\TestCode(code: "PRODUCT", value: "PRODUCT")));
+    $msg->order->addObservation(new \mmerlijn\msgRepo\Observation(value: "1", test: new \mmerlijn\msgRepo\TestCode(code: "GROEN", value: "is groen")), 'PRODUCT');
+    $msg->order->addObservation(new \mmerlijn\msgRepo\Observation(value: "2", test: new \mmerlijn\msgRepo\TestCode(code: "ROOD", value: "is rood")), 'PRODUCT');
+    $msg->order->addObservation(new \mmerlijn\msgRepo\Observation(value: "3", test: new \mmerlijn\msgRepo\TestCode(code: "BLAUW", value: "is blauw")));
     $hl7->setMsg($msg);
-    $string = $hl7->write(true);
+    //dd($msg->order->toArray());
+    $string = $hl7->setUseSegments(['MSH', 'PID', 'PV1', 'PV2', 'IN1', 'ORC', 'OBR', 'OBX'])->setRepeatORC(false)->write(true);
     expect($string)->toBe("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1" . chr(13) .
         "PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Testname&&Testname^A^B^^^^L||19800623|M|||Schoonstraat 38 A&Schoonstraat&38^A^Amsterdam^^1040AB^NL^M||06 1234 1234^PRN^CP||||||||||||||||||Y|NNNLD" . chr(13) .
         "PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V" . chr(13) .
@@ -159,12 +161,11 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
         "OBX|2|CE|COVIDURG^Urgentie?^99zdl||6 mnd^Binnen 6 mnd^99zda||||||F" . chr(13) .
         "OBX|3|NM|BLAUW^is blauw^99zdl||3||||||F" . chr(13) .
         "OBR|2|ZD12345678||TIJD^TIJD^99zdl|R||||||O|||||01123456^van der Plas^B^^^^^^VEKTIS" . chr(13) .
-        "OBX|1|ST|COVIDSYM^Covid-19 verdacht^99zdl||false||||||F" . chr(13) .
-        "OBX|2|CE|COVIDURG^Urgentie?^99zdl||6 mnd^Binnen 6 mnd^99zda||||||F" . chr(13) .
-        "OBX|3|NM|BLAUW^is blauw^99zdl||3||||||F" . chr(13) .
+        "OBX|1|NM|BLAUW^is blauw^99zdl||3||||||F" . chr(13) .
         "OBR|3|ZD12345678||PRODUCT^PRODUCT^99zdl|R||||||O|||||01123456^van der Plas^B^^^^^^VEKTIS" . chr(13) .
         "OBX|1|NM|GROEN^is groen^99zdl||1||||||F" . chr(13) .
-        "OBX|2|NM|ROOD^is rood^99zdl||2||||||F" . chr(13));
+        "OBX|2|NM|ROOD^is rood^99zdl||2||||||F" . chr(13) .
+        "OBX|3|NM|BLAUW^is blauw^99zdl||3||||||F" . chr(13));
 });
 
 it('can compact HL7', function () {

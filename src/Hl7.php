@@ -105,7 +105,8 @@ class Hl7
             if ($validate)
                 $segment->validate();
             if ($segment->name == "MSH") {
-                unset($segment->data[2]);
+                //unset($segment->data[2]);
+                //dd($segment->data);
                 $output .= str_replace("DEFAULT", "^~\&", $segment->write()) . chr(13); //"^~\&"
             } elseif (!$this->repeat_ORC and $orc_counter > 0 and $segment->name == "ORC") {
                 //skip

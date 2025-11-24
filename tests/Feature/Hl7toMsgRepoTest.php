@@ -11,6 +11,7 @@ use mmerlijn\msgRepo\Specimen;
 
 it('Read HL7', function (string $dataset, Msg $expected) {
     $hl7 = new Hl7($dataset);
+    $hl7->getSegment('PID.1');
     $msgRepo = $hl7->getMsg(new Msg());
 
 
@@ -32,7 +33,8 @@ it('Read HL7', function (string $dataset, Msg $expected) {
         ->and($msgRepo->order->requests[1]->test->code)->toBe($expected->order->requests[1]->test->code)
         ->and($msgRepo->order->requests[1]->specimens[0]->test->code)->toBe($expected->order->requests[1]->specimens[0]->test->code)
         ->and($msgRepo->order->requests[1]->specimens[0]->container->value)->toBe($expected->order->requests[1]->specimens[0]->container->value)
-        ->and($msgRepo->order->requests[1]->id)->toBe($expected->order->requests[1]->id);
+        ->and($msgRepo->order->requests[1]->id)->toBe($expected->order->requests[1]->id)
+        ->and($msgRepo->getSegment("PID.1"))->toBe('1');
 
 
 })->with([
@@ -376,8 +378,7 @@ it('can read zorgdomein v3 input', function ($hl7data, Msg $expected) {
         ->and($msgRepo->order->requests[2]->id)->toBe($expected->order->requests[2]->id)
         ->and($msgRepo->order->requests[2]->specimens[0]->test->code)->toBe($expected->order->requests[2]->specimens[0]->test->code)
         ->and($msgRepo->order->requests[3]->id)->toBe($expected->order->requests[3]->id)
-        ->and($msgRepo->order->requests[3]->observations[0]->test->code)->toBe($expected->order->requests[3]->observations[0]->test->code)
-        ;
+        ->and($msgRepo->order->requests[3]->observations[0]->test->code)->toBe($expected->order->requests[3]->observations[0]->test->code);
 })->with([
     ["MSH|^~\&|ZorgDomein||Labtrain|SALT|20251112125902+0100||OML^O21^OML_O21|b366bbc160e84dd68b0e|P|2.5.1|||||NLD|8859/1
 NTE|1|P|Laboratorium|ZD_CLUSTER_NAME^ZorgDomein clusternaam^L
@@ -467,7 +468,7 @@ OBR|4|ZP100120397||TIJD^TIJD^L|||||||O|||||01123456^Blank^M.A.^^^^^^VEKTIS",
                                 )
                             )
                         ]
-                    ),new \mmerlijn\msgRepo\Request(
+                    ), new \mmerlijn\msgRepo\Request(
                         test: new  \mmerlijn\msgRepo\TestCode(
                             code: "TIJD",
                             value: "TIJD",
@@ -492,7 +493,7 @@ OBR|4|ZP100120397||TIJD^TIJD^L|||||||O|||||01123456^Blank^M.A.^^^^^^VEKTIS",
     ],
 ]);
 
-it('can read 120 input',function($hl7data, Msg $expected) {
+it('can read 120 input', function ($hl7data, Msg $expected) {
     $hl7 = new Hl7($hl7data);
     $msgRepo = $hl7->getMsg(new Msg());
     expect($msgRepo->order->request_nr)->toBe($expected->order->request_nr)
@@ -503,8 +504,7 @@ it('can read 120 input',function($hl7data, Msg $expected) {
         ->and($msgRepo->order->requests[0]->test->code)->toBe($expected->order->requests[0]->test->code)
         ->and($msgRepo->order->requests[0]->test->value)->toBe($expected->order->requests[0]->test->value)
         ->and($msgRepo->order->requests[0]->specimens[0]->test->code)->toBe($expected->order->requests[0]->specimens[0]->test->code)
-        ->and($msgRepo->order->requests[0]->specimens[0]->container->value)->toBe($expected->order->requests[0]->specimens[0]->container->value)
-        ;
+        ->and($msgRepo->order->requests[0]->specimens[0]->container->value)->toBe($expected->order->requests[0]->specimens[0]->container->value);
 })->with([
     ["MSH|^~\&|ZorgDomein||OrderModule||20251231172520+0100||ORM^O01^ORM_O01|1234567|P|2.4|||||NLD|8859/1
 PID|1||900073962^^^NLMINBIZA^NNNLD~ZP100120391^^^ZorgDomein^VN||Testpatiënt - van Zorg Domein&van&Zorg Domein&&Testpatiënt^Z^D^^^^L||19901231|F|||2e Antonie Heinsiusstraat 3456 b&2e Antonie Heinsiusstraat&3456^b^'s-Gravenhage^^9999 ZZ^NL^M||+12025550144^PRN^PH~+31612345678^ORN^CP~^NET^Internet^demo@zorgdomein.nl||||||||||||||||||Y|NNNLD

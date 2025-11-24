@@ -94,7 +94,10 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->test->code, 4);
         $this->setData($msg->order->requests[$request_key]->test->value, 4, 0, 1);
         $this->setData($msg->order->requests[$request_key]->test->source ?: $msg->default_source, 4, 0, 2);
-
+        //priority
+        if ($msg->order->priority !== null) {
+            $this->setData($msg->order->priority ? "C" : "R", 5);
+        }
         $this->setDate($msg->order->observation_at, 7);
         $this->setData($msg->order->where->getHl7(), 11);
 

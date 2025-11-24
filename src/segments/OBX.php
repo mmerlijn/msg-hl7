@@ -4,6 +4,7 @@ namespace mmerlijn\msgHl7\segments;
 
 use Carbon\Carbon;
 use mmerlijn\msgHl7\validation\Validator;
+use mmerlijn\msgRepo\Enums\ObservationTestCodeEnum;
 use mmerlijn\msgRepo\Enums\ResultFlagEnum;
 use mmerlijn\msgRepo\Enums\ValueTypeEnum;
 use mmerlijn\msgRepo\Msg;
@@ -26,7 +27,7 @@ class OBX extends Segment implements SegmentInterface
             $msg->order->addRequest();
         }
         $observation = new Observation(
-            type: $this->getData(2),
+            type: ObservationTestCodeEnum::tryFrom($this->getData(2)) ?? $this->getData(2),
             value: $this->getData(5),
             test: new TestCode(
                 code: $this->getData(3),
