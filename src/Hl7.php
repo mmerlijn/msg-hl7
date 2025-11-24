@@ -22,6 +22,7 @@ use mmerlijn\msgRepo\Msg;
 
 class Hl7
 {
+    private array $msgSegmentsToGet = [];
     private string $msg = "";
     public array $segments = [];
     public bool $repeat_ORC = true;
@@ -54,6 +55,12 @@ class Hl7
     public function setRepeatORC(bool $bool = true)
     {
         $this->repeat_ORC = $bool;
+        return $this;
+    }
+
+    public function getSegment(string $identifier): self
+    {
+        $this->msgSegmentsToGet[] = $identifier;
         return $this;
     }
 
@@ -141,6 +148,9 @@ class Hl7
     {
         if (!$msg) {
             $msg = new Msg();
+        }
+        foreach ($this->msgSegmentsToGet as $v) {
+            $msg->addSegment($v);
         }
         $previous_segment = null;
         foreach ($this->segments as $segment) {

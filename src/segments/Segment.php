@@ -79,17 +79,18 @@ class Segment implements SegmentInterface
             $fields[] = preg_replace("/\.*(~*)$/", "", implode("~", $rep));
             //}
         }
-        return str_replace("MSH|DEFAULT|","MSH|^~\\&",preg_replace("/\.*(\|*)$/", "", implode("|", $fields)));
+        return str_replace("MSH|DEFAULT|", "MSH|^~\\&", preg_replace("/\.*(\|*)$/", "", implode("|", $fields)));
     }
 
     public function getMsg(Msg $msg): Msg
     {
+        $this->msgSegmentGetter($msg);
         return $msg;
     }
 
     public function setMsg(Msg $msg): self
     {
-
+        return $this->msgSegmentSetter($msg);
     }
 
     public function validate(): void
@@ -211,5 +212,32 @@ class Segment implements SegmentInterface
         $this->data[$field] = array_pad($this->data[$field], $repetition + 1, []);
         $this->data[$field][$repetition] = array_pad($this->data[$field][$repetition], $component + 1, []);
         $this->data[$field][$repetition][$component] = array_pad($this->data[$field][$repetition][$component], $subComponent + 1, "");
+    }
+
+    public function msgSegmentSetter(Msg $msg, int $nr = 0): self
+    {
+        foreach ($msg->hl7Data as $s => $v) {
+            if (str_starts_with($s, $this->name)) {
+                $p = explode("_", $s);
+                if (($p[1] ?? null) == $nr) {
+                    $i = explode(".", $p[0]);
+                    $this->setData($i[1] ?? 1, $i[2] ?? 0, $i[3] ?? 0, $i[4] ?? 0);
+                }
+            }
+        }
+        return $this;
+    }
+
+    public function msgSegmentGetter(Msg &$msg, $nr = 0): void
+    {
+        foreach ($msg->hl7Data as $s => $v) {
+            if (str_starts_with($s, $this->name)) {
+                $p = explode("_", $s);
+                if (($p[1] ?? null) == $nr) {
+                    $i = explode(".", $p[0]);
+                    $msg->hl7Data[$s] = $this->getData($i[1] ?? 1, $i[2] ?? 0, $i[3] ?? 0, $i[4] ?? 0);
+                }
+            }
+        }
     }
 }

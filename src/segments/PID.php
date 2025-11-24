@@ -21,7 +21,7 @@ class PID extends Segment implements SegmentInterface
     public function setMsg(Msg $msg): self
     {
         $this->setData("1", 1);
-        $this->setData("L",5,0,6);
+        $this->setData("L", 5, 0, 6);
         //set patient identifier
         $counterLocal = 0;
         $counter = 0;
@@ -84,6 +84,7 @@ class PID extends Segment implements SegmentInterface
         }
         $this->setData("Y", 31);
         $this->setData("NNNLD", 32);
+        $this->msgSegmentSetter($msg);
         return $this;
     }
 
@@ -182,6 +183,7 @@ class PID extends Segment implements SegmentInterface
                 $msg->patient->email = $this->getData(14, 0, 3);
             }
         }
+        $this->msgSegmentGetter($msg);
         return $msg;
     }
 

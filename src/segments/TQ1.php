@@ -45,6 +45,7 @@ class TQ1 extends Segment implements SegmentInterface
             $this->setData("Routine", 9, 0, 1);
             $this->setData("HL70485", 9, 0, 2);
         }
+        $this->msgSegmentSetter($msg, $request_key);
         return $this;
     }
 

@@ -11,12 +11,12 @@ class Z03 extends Segment implements SegmentInterface
 
     public function getMsg(Msg $msg): Msg
     {
-        $req_ind = count($msg->order->requests)-1;
+        $req_ind = count($msg->order->requests) - 1;
         if ($req_ind < 0) {
             $msg->order->addRequest();
             $req_ind = 0;
         }
-        $sp_i = count($msg->order->requests[$req_ind]->specimens)-1;
+        $sp_i = count($msg->order->requests[$req_ind]->specimens) - 1;
         if ($sp_i < 0) {
             $msg->order->requests[$req_ind]->addSpecimen();
             $sp_i = 0;
@@ -24,8 +24,11 @@ class Z03 extends Segment implements SegmentInterface
         $msg->order->requests[$req_ind]->specimens[$sp_i]->location = $this->getData(1);
         return $msg;
     }
+
     public function setMsg(Msg $msg): self
     {
-        return $this->setData($msg->order->getSpecimenByTestcode("BCBB")?->location, 1);
+        $this->setData($msg->order->getSpecimenByTestcode("BCBB")?->location, 1);
+        $this->msgSegmentSetter($msg);
+        return $this;
     }
 }

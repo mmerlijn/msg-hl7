@@ -13,6 +13,7 @@ class BLG extends Segment implements SegmentInterface
     public function setMsg(Msg $msg): self
     {
         $this->setData("CH", 2);
+        $this->msgSegmentSetter($msg);
         return $this;
     }
 

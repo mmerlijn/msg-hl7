@@ -47,6 +47,7 @@ class MSH extends Segment implements SegmentInterface
         } else {
             $this->setData("8859/1", 18);
         }
+        $this->msgSegmentSetter($msg);
         return $this;
 
     }
@@ -79,6 +80,7 @@ class MSH extends Segment implements SegmentInterface
         $msg->msgType->version = $this->getData(12);
         //charset
         $msg->msgType->charset = $this->getData(18);
+        $this->msgSegmentGetter($msg);
         return $msg;
     }
 

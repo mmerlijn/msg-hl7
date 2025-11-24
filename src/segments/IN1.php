@@ -17,13 +17,14 @@ class IN1 extends Segment implements SegmentInterface
             policy_nr: $this->getData(36),
             company_name: $this->getData(4),
         ));
+        $this->msgSegmentGetter($msg);
         return $msg;
     }
 
     public function setMsg(Msg $msg): self
     {
         $this->setData("1", 1);
-        $this->setData("null", 2,0,1);
+        $this->setData("null", 2, 0, 1);
         if ($msg->patient->insurance) {
             $this->setData($msg->patient->insurance->policy_nr, 36);
             $this->setData($msg->patient->insurance->company_name, 4);
@@ -33,6 +34,7 @@ class IN1 extends Segment implements SegmentInterface
                 $this->setData($msg->patient->insurance->uzovi, 3);
             }
         }
+        $this->msgSegmentSetter($msg);
         return $this;
     }
 

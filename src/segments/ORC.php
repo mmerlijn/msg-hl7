@@ -98,7 +98,7 @@ class ORC extends Segment implements SegmentInterface
         }
         $msg->sender->setPhone($this->getData(23));
 
-
+        //$this->msgSegmentGetter($msg,count($msg->order->requests)-1);
         return $msg;
     }
 
@@ -168,7 +168,7 @@ class ORC extends Segment implements SegmentInterface
             $this->setData("WPN", 23, 0, 1);
             $this->setData("PH", 23, 0, 2);
         }
-
+        $this->msgSegmentSetter($msg, $nr);
         return $this;
     }
 

@@ -75,6 +75,7 @@ class OBR extends Segment implements SegmentInterface
                 source: $this->getData(28, 0, 8),
             );
         }
+        //$this->msgSegmentGetter($msg,count($msg->order->requests)-1);
         return $msg;
     }
 
@@ -117,6 +118,7 @@ class OBR extends Segment implements SegmentInterface
             $this->setData($msg->order->copy_to->name->initials, 28, 0, 2);
             $this->setData($msg->order->copy_to->source, 28, 0, 8);
         }
+        $this->msgSegmentSetter($msg, $request_key);
         return $this;
     }
 
