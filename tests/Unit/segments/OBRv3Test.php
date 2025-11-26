@@ -152,4 +152,15 @@ it('can write OBR', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
     ],
 ]);
 
+it('can add manual segments', function () {
+    $msg = new Msg();
+    $msg->setSegment('OBR.39.0.1', 'Test string');
+    $obr = new \mmerlijn\msgHl7\segments\OBR();
+    $obr->setMsg($msg);
+    expect($obr->write())->toContain('Test string');
+});
+it('can read manual segments', function () {
+
+});
+
 
