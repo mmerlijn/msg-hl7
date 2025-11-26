@@ -25,7 +25,10 @@ class OBR extends Segment implements SegmentInterface
             test: new TestCode(
                 code: $this->getData(4),
                 value: $this->getData(4, 0, 1),
-                source: $this->getData(4, 0, 2)
+                source: $this->getData(4, 0, 2),
+                a_code: $this->getData(4, 0, 3),
+                a_value: $this->getData(4, 0, 4),
+                a_source: $this->getData(4, 0, 5),
             ),
             other_test: new TestCode(
                 code: $this->getData(15),
@@ -94,6 +97,9 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->test->code, 4);
         $this->setData($msg->order->requests[$request_key]->test->value, 4, 0, 1);
         $this->setData($msg->order->requests[$request_key]->test->source ?: $msg->default_source, 4, 0, 2);
+        $this->setData($msg->order->requests[$request_key]->test->a_code, 4, 0, 3);
+        $this->setData($msg->order->requests[$request_key]->test->a_value, 4, 0, 4);
+        $this->setData($msg->order->requests[$request_key]->test->a_source, 4, 0, 5);
         //priority
         if ($msg->order->priority !== null) {
             $this->setData($msg->order->priority ? "C" : "R", 5);
