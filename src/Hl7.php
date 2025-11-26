@@ -5,6 +5,7 @@ namespace mmerlijn\msgHl7;
 use mmerlijn\msgHl7\helpers\Encoding;
 use mmerlijn\msgHl7\segments\BLG;
 use mmerlijn\msgHl7\segments\IN1;
+use mmerlijn\msgHl7\segments\LBS;
 use mmerlijn\msgHl7\segments\MSH;
 use mmerlijn\msgHl7\segments\NTE;
 use mmerlijn\msgHl7\segments\OBR;
@@ -261,6 +262,9 @@ class Hl7
         }
         if (in_array("BLG", $this->useSegments)) {
             $this->segments[] = (new BLG("BLG||CH"))->setMsg($msg);
+        }
+        if (in_array("LBS", $this->useSegments)) {
+            $this->segments[] = (new LBS("LBS|1|GOED"))->setMsg($msg);
         }
         return $this;
     }
