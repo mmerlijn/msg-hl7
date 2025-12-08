@@ -66,8 +66,9 @@ class OBR extends Segment implements SegmentInterface
                 ));
             $msg->order->requester->source = $this->getData(16, 0, 8);
         }
-        $msg->order->start_date = $this->getDate(20);
-
+        if(!$msg->order->start_date) {
+            $msg->order->start_date = $this->getDate(20);
+        }
         if ($this->getData(28)) { //copy_to
             $msg->order->copy_to = new Contact(
                 agbcode: $this->getData(28),
