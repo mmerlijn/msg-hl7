@@ -28,16 +28,18 @@ it('can read ORC', function (string $hl7, Msg $expectedRepo) {
         ->and($msg->sender->address->city)->toBe($expectedRepo->sender->address->city)
         ->and($msg->sender->address->postcode)->toBe($expectedRepo->sender->address->postcode)
         ->and($msg->sender->address->country)->toBe($expectedRepo->sender->address->country)
-        ->and($msg->sender->phone->number)->toBe($expectedRepo->sender->phone->number);
+        ->and($msg->sender->phone->number)->toBe($expectedRepo->sender->phone->number)
+        ->and($msg->order->start_date->format('Y-m-d H:i:s'))->toBe($expectedRepo->order->start_date->format('Y-m-d H:i:s'));
 })->with([
     ["MSH|^~\&|ZorgDomein||Labtrain|SALT|20251112125133+0100||OML^O21^OML_O21|d0a06274854e4824a8a4|P|2.5.1|||||NLD|8859/1
-ORC|NW|ZP100120392||ZP100120392|||^^^^^R||20251112125346+0100|01123456^Blank^M.A.^^^^^^VEKTIS||01123456^Blank^M.A.^^^^^^VEKTIS|^^^^^^^^SALT||||50009046^SALT^VEKTIS||||SALT^^50009046^^^VEKTIS|Molenwerf 11&Molenwerf&11^^Koog aan de Zaan^^1541WR^NL|0889100100^WPN^PH
+ORC|NW|ZP100120392||ZP100120392|||^^^20251205000000+0100^^R||20251112125346+0100|01123456^Blank^M.A.^^^^^^VEKTIS||01123456^Blank^M.A.^^^^^^VEKTIS|^^^^^^^^SALT||||50009046^SALT^VEKTIS||||SALT^^50009046^^^VEKTIS|Molenwerf 11&Molenwerf&11^^Koog aan de Zaan^^1541WR^NL|0889100100^WPN^PH
 ",
         fn() => new Msg(
             order: new \mmerlijn\msgRepo\Order(
                 control: \mmerlijn\msgRepo\Enums\OrderControlEnum::NEW,
                 request_nr: "ZP100120392",
                 priority: false,
+                start_date: new Carbon\Carbon("2025-12-05 00:00:00+01:00"),
                 requester: new \mmerlijn\msgRepo\Contact(
                     agbcode: "01123456",
                     name: new \mmerlijn\msgRepo\Name(
@@ -79,6 +81,7 @@ ORC|NW|ZP100120392||ZP100120392|||^^^^^R||20251112125346+0100|01123456^Blank^M.A
 
     ],
 ]);
+
 it('can write ORC', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
 
     $orc = new \mmerlijn\msgHl7\segments\ORC();
@@ -93,6 +96,7 @@ it('can write ORC', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
                 control: \mmerlijn\msgRepo\Enums\OrderControlEnum::NEW,
                 request_nr: "ZP100120392",
                 priority: false,
+                start_date: carbon\Carbon::now()->startOfDay(),
                 requester: new \mmerlijn\msgRepo\Contact(
                     agbcode: "01123456",
                     name: new \mmerlijn\msgRepo\Name(
@@ -131,7 +135,7 @@ it('can write ORC', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
 
             )
         ),
-        "ORC|NW|ZP100120392||ZP100120392|||^^^^^R||20251112125346+0100|01123456^Blank^MA^^^^^^VEKTIS||01123456^Blank^MA^^^^^^VEKTIS|^^^^^^^^SALT||||50009046^SALT^VEKTIS||||SALT^^50009046^^^VEKTIS|Molenwerf 11&Molenwerf&11^^Koog Aan De Zaan^^1541WR^NL|088 9100 100^WPN^PH"
+        "ORC|NW|ZP100120392||ZP100120392|||^^^".\Carbon\Carbon::now()->startOfDay()->format('YmdHisO')."^^R||20251112125346+0100|01123456^Blank^MA^^^^^^VEKTIS||01123456^Blank^MA^^^^^^VEKTIS|^^^SALT&50009046^^^^^SALT||||50009046^SALT^VEKTIS||||SALT^^50009046^^^VEKTIS|Molenwerf 11&Molenwerf&11^^Koog Aan De Zaan^^1541WR^NL|088 9100 100^WPN^PH"
     ],
 ]);
 
