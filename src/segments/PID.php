@@ -151,7 +151,7 @@ class PID extends Segment implements SegmentInterface
             postcode: preg_replace('/\s/', '', $this->getData(11, 0, 4)),
             city: $this->getData(11, 0, 2),
             street: $this->getData(11, 0, 0, 1),
-            building: $this->getData(11, 0, 0, 2) . $this->getData(11, 0, 1),
+            building: $this->getData(11, 0, 0, 2) .'-'. $this->getData(11, 0, 1),
             country: $this->getData(11, 0, 5),
         ));
         if (!$msg->patient->address->street) {

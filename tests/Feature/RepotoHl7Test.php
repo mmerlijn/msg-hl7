@@ -120,6 +120,7 @@ it('can create msg', function () {
     );
     $msg->order->request_nr = 'FK' . (100000000 + 45);
     $msg->order->where = OrderWhereEnum::EMPTY;
+    $msg->order->priority=true;
     $msg->order->addRequest(
         new Request(
             test: new TestCode(code: "DUMMY", value: "DUMMY", source: "L")
@@ -129,4 +130,30 @@ it('can create msg', function () {
     dd($hl7->write());
 })->skip();
 
-
+it('can read hl7, set it to msg and write hl7',function(){
+    $hl7string= "MSH|^~\&|ZorgDomein||OrderModule||20251215215057+0100||ORM^O01^ORM_O01|c3c8f363-1b66-329e-88d6-969eab7fe721|P|2.4|||||NLD|8859/1
+PID|1||ZD248026420^^^ZorgDomein^VN||Molenaar&&Molenaar^J^B^^^^L||19490129|F|||Van Wijkstraat 92-68&Van Wijkstraat&92^68^Kornhorn^^9801TA^NL^M||020 0536 242^PRN^PH||||||||||||||||||Y|NNNLD
+PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V
+PV2|||LABEDG001^laboratorium^99zda
+IN1|1|^null|3343^^^VEKTIS^UZOVI
+ORC|NW|AB123||AB123|||^^^^^R||20251215215057+0100|||12345678^de Groot^A^^^^^^VEKTIS
+TQ1|1||||||||R^Routine^HL70485
+OBR|1|ZD248026420||GLUCNU^Glucose nuchter^99zda|R||||||O|||||12345678^de Groot^A^^^^^^VEKTIS
+ORC|NW|AB123||AB123|||^^^^^R||20251215215057+0100|||12345678^de Groot^A^^^^^^VEKTIS
+TQ1|2||||||||R^Routine^HL70485
+OBR|2|ZD248026420||ALAT^ALAT^99zda|R||||||O|||||12345678^de Groot^A^^^^^^VEKTIS
+OBX|1|ST|AI^Opmerkingen / klinische gegevens^99zdl||Ischemische colitis, kwetsbare gezondheid||||||F";
+    $hl7=new Hl7($hl7string);
+    $msg=$hl7->getMsg(new Msg());
+    $outHl7=(new Hl7())->setMsg($msg)->setUseSegments(['MSH', 'PID', 'PV1', 'PV2', 'IN1', 'ORC', 'OBR', 'OBX'])->write();
+    expect($outHl7)->toBe("MSH|^~\&|ZorgDomein||OrderModule||20251215215057+0100||ORM^O01^ORM_O01|c3c8f363-1b66-329e-88d6-969eab7fe721|P|2.4|||||NLD|8859/1".chr(13).
+"PID|1||ZD248026420^^^ZorgDomein^VN||Molenaar&&Molenaar^J^B^^^^L||19490129|F|||Van Wijkstraat 92-68&Van Wijkstraat&92^68^Kornhorn^^9801TA^NL^M||020 0536 242^PRN^PH||||||||||||||||||Y|NNNLD".chr(13).
+"PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V".chr(13).
+"PV2|||LABEDG001^laboratorium^99zda".chr(13).
+"IN1|1|^null|3343^^^VEKTIS^UZOVI".chr(13).
+"ORC|NW|AB123||AB123|||^^^^^R||20251215215057+0100|||12345678^de Groot^A^^^^^^VEKTIS".chr(13).
+"OBR|1|ZD248026420||GLUCNU^Glucose nuchter^99zda|R||||||O|||||12345678^de Groot^A^^^^^^VEKTIS".chr(13).
+"ORC|NW|AB123||AB123|||^^^^^R||20251215215057+0100|||12345678^de Groot^A^^^^^^VEKTIS".chr(13).
+"OBR|2|ZD248026420||ALAT^ALAT^99zda|R||||||O|||||12345678^de Groot^A^^^^^^VEKTIS".chr(13).
+"OBX|1|ST|AI^Opmerkingen / klinische gegevens^99zdl||Ischemische colitis, kwetsbare gezondheid||||||F".chr(13));
+});

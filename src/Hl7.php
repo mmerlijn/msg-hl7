@@ -116,7 +116,6 @@ class Hl7
                     $orc_counter++;
                 }
                 if (in_array($segment->name, $this->useSegments)) {
-
                     $line = $segment->write();
                     if (strlen($line) > 3) {
                         $output .= $line . chr(13);
@@ -334,6 +333,11 @@ class Hl7
                         $this->segments[] = new Undefined($line);
                     }
                 }
+            }
+            if($this->segments[0]->name=="MSH") {
+                $date = $this->segments[0]->getData(7);
+                if (strlen(19)) $this->setDatetimeFormat("YmdHisO");
+                if (strlen(14)) $this->setDatetimeFormat("YmdHis");
             }
         }
     }
