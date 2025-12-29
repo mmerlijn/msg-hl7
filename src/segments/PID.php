@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Enums\PatientSexEnum;
+use mmerlijn\msgRepo\Enums\AddressTypeEnum;
 use mmerlijn\msgRepo\Id;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
@@ -65,6 +66,7 @@ class PID extends Segment implements SegmentInterface
         $this->setData($msg->patient->address->city, 11, 0, 2);
         $this->setData($msg->patient->address->postcode, 11, 0, 4);
         $this->setData($msg->patient->address->country ?: "NL", 11, 0, 5);
+        $this->setData($msg->patient->address->type?->value, 11, 0, 6);
 
         //set telephone
         foreach ($msg->patient->phones as $k => $phone) {
@@ -82,7 +84,16 @@ class PID extends Segment implements SegmentInterface
             $this->setData("Internet", 13, $repetition, 2);
             $this->setData($msg->patient->email, 13, $repetition, 3);
         }
-        $this->setData("Y", 31);
+        //multiple births
+        if ($msg->patient->multiple_births) {
+            $this->setData("Y", 24);
+        }
+        if($msg->patient->bsn){
+            $this->setData("Y", 31);
+        }else{
+            $this->setData("N", 31);
+        }
+
         $this->setData("NNNLD", 32);
         $this->msgSegmentSetter($msg);
         return $this;
@@ -153,6 +164,7 @@ class PID extends Segment implements SegmentInterface
             street: $this->getData(11, 0, 0, 1),
             building: $this->getData(11, 0, 0, 2) .'-'. $this->getData(11, 0, 1),
             country: $this->getData(11, 0, 5),
+            type: AddressTypeEnum::set($this->getData(11, 0, 6)),
         ));
         if (!$msg->patient->address->street) {
             $before = '/(?=.)\s' . $msg->patient->address->building_nr . '.*/';
@@ -166,6 +178,7 @@ class PID extends Segment implements SegmentInterface
                 street: $this->getData(11, 1, 0, 1),
                 building: $this->getData(11, 1, 0, 2) . $this->getData(11, 1, 1),
                 country: $this->getData(11, 1, 5),
+                type: AddressTypeEnum::set($this->getData(11, 1, 6)),
             ));
         }
         //get phone
@@ -182,6 +195,9 @@ class PID extends Segment implements SegmentInterface
             if ($this->getData(14, 0, 3)) {
                 $msg->patient->email = $this->getData(14, 0, 3);
             }
+        }
+        if(isset($this->data[24])){
+            $msg->patient->multiple_births = in_array($this->getData(24),['Y','y','j','J',1,'1']);
         }
         $this->msgSegmentGetter($msg);
         return $msg;

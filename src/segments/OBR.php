@@ -47,7 +47,10 @@ class OBR extends Segment implements SegmentInterface
         if (!$msg->order->request_nr) {
             $msg->order->request_nr = $this->getData(2);
         }
-        if (in_array($this->getData(5), ["C", "S", "CITO"])) {
+        if (in_array($this->getData(5), ["C", "CITO"])) {
+            $msg->order->priority = true;
+            $msg->order->cito = true;
+        }elseif(in_array($this->getData(5), ["S","A"])){
             $msg->order->priority = true;
         } elseif (in_array($this->getData(5), ["R"])) {
             $msg->order->priority = false;
@@ -103,7 +106,10 @@ class OBR extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->test->a_source, 4, 0, 5);
         //priority
         if ($msg->order->priority !== null) {
-            $this->setData($msg->order->priority ? "C" : "R", 5);
+            $this->setData($msg->order->priority ? "A" : "R", 5);
+        }
+        if ($msg->order->cito) {
+            $this->setData("C", 5);
         }
         $this->setDate($msg->order->observation_at, 7);
         $this->setData($msg->order->where->getHl7(), 11);

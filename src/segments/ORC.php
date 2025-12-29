@@ -33,12 +33,17 @@ class ORC extends Segment implements SegmentInterface
             $msg->order->request_nr = $this->getData(4);
         }
         //priority
-
-        $msg->order->priority = match ($this->getData(7, 0, 5)) {
-            "C", "S", "CITO" => true,
-            "R" => false,
-            default => null,
-        };
+        if($this->getData(7, 0, 5)){
+            $msg->order->priority = match ($this->getData(7, 0, 5)) {
+                "C", "S", "A", "CITO" => true,
+                "R" => false,
+                default => null,
+            };
+            $msg->order->cito = match ($this->getData(7, 0, 5)) {
+                "C", "CITO" => true,
+                default => null,
+            };
+        }
         $msg->order->start_date = $this->getDate(7, 0, 3);
         //transaction datetime
         $msg->order->request_at = $this->getDate(9);
@@ -117,7 +122,10 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->request_nr, 4);
         //priority
         if ($msg->order->priority !== null) {
-            $this->setData($msg->order->priority ? "C" : "R", 7, 0, 5);
+            $this->setData($msg->order->priority ? "A" : "R", 7, 0, 5);
+        }
+        if ($msg->order->cito) { //overschrijven met cito
+            $this->setData("C", 7, 0, 5);
         }
         $this->setDate($msg->order->start_date, 7, 0, 3);
         //transaction datetime
