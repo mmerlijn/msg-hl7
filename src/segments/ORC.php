@@ -37,11 +37,11 @@ class ORC extends Segment implements SegmentInterface
             $msg->order->priority = match ($this->getData(7, 0, 5)) {
                 "C", "S", "A", "CITO" => true,
                 "R" => false,
-                default => null,
+                default => false,
             };
             $msg->order->cito = match ($this->getData(7, 0, 5)) {
                 "C", "CITO" => true,
-                default => null,
+                default => false,
             };
         }
         $msg->order->start_date = $this->getDate(7, 0, 3);
