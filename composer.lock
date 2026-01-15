@@ -77,16 +77,16 @@
         },
         {
             "name": "mmerlijn/msg-repo",
-            "version": "v3.4.3",
+            "version": "v3.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mmerlijn/msg-repo.git",
-                "reference": "3e6d560bc5f99e108170eccb410d0086d583ed5b"
+                "reference": "df217631f6f7262fb5cb99100f777b8efcccef87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mmerlijn/msg-repo/zipball/3e6d560bc5f99e108170eccb410d0086d583ed5b",
-                "reference": "3e6d560bc5f99e108170eccb410d0086d583ed5b",
+                "url": "https://api.github.com/repos/mmerlijn/msg-repo/zipball/df217631f6f7262fb5cb99100f777b8efcccef87",
+                "reference": "df217631f6f7262fb5cb99100f777b8efcccef87",
                 "shasum": ""
             },
             "require": {
@@ -121,9 +121,9 @@
             "description": "Dutch healthcare read/write edifact to/from repository",
             "support": {
                 "issues": "https://github.com/mmerlijn/msg-repo/issues",
-                "source": "https://github.com/mmerlijn/msg-repo/tree/v3.4.3"
+                "source": "https://github.com/mmerlijn/msg-repo/tree/v3.4.5"
             },
-            "time": "2026-01-12T09:17:02+00:00"
+            "time": "2026-01-12T15:31:40+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -2204,16 +2204,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "2.3.0",
+            "version": "2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "1e0cd5370df5dd2e556a36b9c62f62e555870495"
+                "reference": "16dbf9937da8d4528ceb2145c9c7c0bd29e26374"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/1e0cd5370df5dd2e556a36b9c62f62e555870495",
-                "reference": "1e0cd5370df5dd2e556a36b9c62f62e555870495",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/16dbf9937da8d4528ceb2145c9c7c0bd29e26374",
+                "reference": "16dbf9937da8d4528ceb2145c9c7c0bd29e26374",
                 "shasum": ""
             },
             "require": {
@@ -2245,9 +2245,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.3.0"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.3.1"
             },
-            "time": "2025-08-30T15:50:23+00:00"
+            "time": "2026-01-12T11:33:04+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
