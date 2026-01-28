@@ -5,6 +5,7 @@ namespace mmerlijn\msgHl7\tests\Feature;
 use Carbon\Carbon;
 use Exception;
 use mmerlijn\msgHl7\Hl7;
+use mmerlijn\msgHl7\segments\Z03;
 use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Contact;
 use mmerlijn\msgRepo\Enums\OrderControlEnum;
@@ -70,10 +71,10 @@ it('create hl7', function () {
         $hl7->setDatetimeFormat("YmdHis")
             ->setRepeatORC()
             ->setMsg($repo)
-            ->setUseSegments(["MSH", "PID", "PV1", "PV2", "IN1", "ORC", "OBR", "OBX"]);
+            ->addSegment((new Z03())->setData( 'ABC', 1))
+            ->setUseSegments(["MSH", "PID", "PV1", "PV2", "IN1", "ORC", "OBR", "OBX","Z03"]);
     } catch (Exception $e) {
-        var_dump($e);
-        die();
+        dd($e);
     }
     //expect($hl7->segments[5]->data[7][0][0][0])->toBeInstanceOf(Carbon::class);
     $out = $hl7->setDatetimeFormat("YmdHis")->write();
@@ -85,7 +86,8 @@ it('create hl7', function () {
             'IN1|1|^null|123^^^VEKTIS^UZOVI|||||||||||||||||||||||||||||||||123456789' . chr(13) .
             'ORC|NW|AB123||AB123|||^^^^^R||20231211110000|||12345678^de Groot^A^^^^^^VEKTIS' . chr(13) .
             'OBR|1|AB123||TST^Testname^SRC|R|||||||||||12345678^de Groot^A^^^^^^VEKTIS' . chr(13) .
-            'OBX|1|ST|TST^Testname^SRC||123||||||F' . chr(13));
+            'OBX|1|ST|TST^Testname^SRC||123||||||F' . chr(13) .
+            'Z03|ABC' . chr(13));
 
 
 });

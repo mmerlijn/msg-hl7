@@ -55,7 +55,7 @@ class SPM extends Segment implements SegmentInterface
         if ($msg->order->requests[$request_key]?->specimens[$specimen_key]?->type->value) {
             $this->setData($msg->order->requests[$request_key]->specimens[$specimen_key]->type->code, 4);
             $this->setData($msg->order->requests[$request_key]->specimens[$specimen_key]->type->value, 4, 0, 1);
-            $this->setData($msg->order->requests[$request_key]->specimens[$specimen_key]->test->source ?: $msg->default_source, 4, 0, 2);
+            $this->setData($msg->order->requests[$request_key]->specimens[$specimen_key]->type->source ?: $msg->default_source, 4, 0, 2);
             $this->setData($msg->order->requests[$request_key]->specimens[$specimen_key]->id, 2);
         }
         if($msg->order->requests[$request_key]->specimens[$specimen_key]->collection_method){
