@@ -144,6 +144,7 @@ class Segment implements SegmentInterface
 
     public function toCarbon(string $date): ?Carbon
     {
+        $date = preg_replace('/[\s:-]+/', '', $date);
         return match (strlen($date)) {
             8 => Carbon::createFromFormat("Ymd", $date),
             12 => Carbon::createFromFormat("YmdHi", $date),

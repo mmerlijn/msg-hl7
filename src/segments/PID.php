@@ -2,7 +2,6 @@
 
 namespace mmerlijn\msgHl7\segments;
 
-use Carbon\Carbon;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Enums\PatientSexEnum;
