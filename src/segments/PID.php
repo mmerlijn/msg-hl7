@@ -191,8 +191,10 @@ class PID extends Segment implements SegmentInterface
             }
         }
         if (isset($this->data[14])) {
-            if ($this->getData(14, 0, 3)) {
-                $msg->patient->email = $this->getData(14, 0, 3);
+            if ($email = $this->getData(14, 0, 3)) {
+                if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+                    $msg->patient->email = $email;
+                }
             }
         }
         if(isset($this->data[24])){

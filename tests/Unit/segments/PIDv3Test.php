@@ -120,3 +120,11 @@ it('can write patient details', function (\mmerlijn\msgRepo\Patient $patient, st
         "PID|1||800112345^^^NLMINBIZA^NNNLD~ZD800112345^^^ZorgDomein^VN||de Jansen - van Pieters&van&Pieters&de&Jansen^J^D^^^^L||19850715|M|||Kerkstraat 12 a&Kerkstraat&12^a^Utrecht^^1234AB^NL||06 9876 5432^PRN^CP~^NET^Internet^demo@zorgdomein.nl||||||||||||||||||Y|NNNLD"
     ],
 ]);
+
+it('only reads valid email',function(){
+    $pid = "PID|1||800112345^^^NLMINBIZA^NNNLD~ZD800112345^^^ZorgDomein^VN||de Jansen - van Pieters&van&Pieters&de&Jansen^J^D^^^^L||19850715|M|||Kerkstraat 12 a&Kerkstraat&12^a^Utrecht^^1234AB^NL||06 9876 5432^PRN^CP~^NET^Internet^not_valid||||||||||||||||||Y|NNNLD";
+    $hl7v3 = new \mmerlijn\msgHl7\Hl7($pid);
+    $msgRepo = $hl7v3->getMsg(new Msg());
+    expect($msgRepo->patient->email)->toBeNull();
+
+});
