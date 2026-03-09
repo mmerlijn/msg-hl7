@@ -134,7 +134,7 @@ class Segment implements SegmentInterface
         return preg_replace('/\\\(\||~|\^|&)/', '$1', $this->data[$field][$repetition][$component][$subComponent] ?? "");
     }
 
-    public function getDate(int $field, int $repetition = 0, int $component = 0, int $subCompoqnent = 0): ?Carbon
+    public function getDate(int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): ?Carbon
     {
         if (($this->data[$field][$repetition][$component][$subComponent] ?? "") instanceof Carbon)
             return $this->data[$field][$repetition][$component][$subComponent] ?? null;
