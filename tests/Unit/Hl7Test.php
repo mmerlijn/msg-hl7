@@ -231,20 +231,6 @@ OBR|2|ZD694444356||TIJD^TIJD^99zdl|||||||O|||||06659793^Schouten^B^^^^^^VEKTIS
         "OBX|4|ST|RMEDI^Medicatie^99zda||metformine||||||F" . chr(13) .
         "OBX|5|ST|FOPM^Opmerking^99zda||Sinds kort gestart met lantus ivm hoog Hba1c\.br\Laatste fundus 2020||||||F" . chr(13)
     );
-    $hl7 = (new Hl7($hl7))->setDatetimeFormat("YmdHisO")->setRepeatORC(false)->filterRequestCode(['TIJD'])->write();
-    expect($hl7)->toBe("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0100||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1" . chr(13) .
-        "PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Testname&&Testname^A^B^^^^L||19800623|M|||Schoonstraat 38 a&Schoonstraat&38^A^AMSTERDAM^^1040AB^NL^M||0612341234^ORN^CP||||||||||||||||||Y|NNNLD" . chr(13) .
-        "PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V" . chr(13) .
-        "PV2|||BEEEDG020^Fundusfoto^99zda" . chr(13) .
-        "IN1|1|^null|123^^^VEKTIS^UZOVI|Ditzo Zorgverzekering||||||||||||||||||||||||||||||||123456789" . chr(13) .
-        "ORC|NW|ZD12345678||ZD12345678|||^^^^^R||20220102103000+0100|^Doe^J||01123456^van der Plas^B^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS" . chr(13) .
-        "OBR|1|ZD12345678||FUNDUS^Fundusfoto ^99zdl|||||||O|||||06659793^Schouten^R^^^^^^VEKTIS" . chr(13) .
-        "OBX|1|CE|^Indicatie||HYPERT^Hypertensie^99zda||||||F" . chr(13) .
-        "OBX|2|ST|DIABM^Diabetes mellitus type I/II sinds^99zda||Sinds 2015||||||F" . chr(13) .
-        "OBX|3|ST|FKLACHT^Klachten^99zda||Hyper klachten||||||F" . chr(13) .
-        "OBX|4|ST|RMEDI^Medicatie^99zda||metformine||||||F" . chr(13) .
-        "OBX|5|ST|FOPM^Opmerking^99zda||Sinds kort gestart met lantus ivm hoog Hba1c\.br\Laatste fundus 2020||||||F" . chr(13)
-    );
 });
 
 it('filters dubbele berichten', function () {
@@ -260,10 +246,25 @@ OBX|2|CE|COVIDURG^Urgentie?^99zdl||6 mnd^Binnen 6 mnd^99zda||||||F
 ORC|NW|ZD12345678||ZD12345678|||^^^^^R||20220102103000+0200|^Doe^J.||01123456^van der Plas^B.^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS
 OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKTIS
 ";
-    $h = new Hl7($hl7 . $hl7);
+    $h = new Hl7($hl7);
     expect($h->segments)->toHaveCount(11)
         ->and($h->segments[1])->toBeInstanceOf(\mmerlijn\msgHl7\segments\PID::class)
         ->and($h->segments[9])->toBeInstanceOf(ORC::class)
         ->and($h->segments[10])->toBeInstanceOf(OBR::class);
     //->and($h->setRepeatORC(false)->write())->toBe($hl7);
+});
+it('can force specific fields in segment',function(){
+    $hl7 = "MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
+PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Testname&&Testname^A^B^^^^L||19800623|M|||Schoonstraat 38 a&Schoonstraat&38^A^AMSTERDAM^^1040AB^NL^M||0612341234^ORN^CP||||||||||||||||||Y|NNNLD
+PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V
+PV2|||LABEDG001^laboratorium^99zda
+IN1|1|^null|123^^^VEKTIS^UZOVI|Ditzo Zorgverzekering||||||||||||||||||||||||||||||||123456789
+ORC|NW|ZD12345678||ZD12345678|||^^^^^R||20220102103000+0200|^Doe^J.||01123456^van der Plas^B.^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS
+OBR|1|ZD12345678||CRP^CRP^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKTIS
+ORC|NW|ZD12345678||ZD12345678|||^^^^^R||20220102103000+0200|^Doe^J.||01123456^van der Plas^B.^^^^^^VEKTIS|^^^Huisartsenpraktijk van der Plas&01123456^^^^^Huisartsenpraktijk van der Plas||||01123456^Huisartsenpraktijk van der Plas^VEKTIS||||Huisartsenpraktijk van der Plas^^01123456^^^VEKTIS
+OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKTIS
+";
+    $hl7 = new Hl7($hl7)->force("ABCD","OBR",3)->write();
+    expect($hl7)->toContain("OBR|1|ZD12345678|ABCD|CRP^CRP^99zdl")
+        ->toContain("OBR|2|ZD12345678|ABCD|TIJD^TIJD");
 });

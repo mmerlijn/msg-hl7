@@ -342,6 +342,25 @@ class Hl7
         }
     }
 
+    /**
+     * Force value for a specific field
+     * @param string $value
+     * @param string $segmentName
+     * @param int $field
+     * @param int $repetition
+     * @param int $component
+     * @param int $subComponent
+     * @return self
+     */
+    public function force(string $value, string $segmentName, int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): self
+    {
+        foreach ($this->segments as $segment) {
+            if ($segment->name == $segmentName) {
+                $segment->setData($value, $field, $repetition,$component,$subComponent);
+            }
+        }
+        return $this;
+    }
 
     private function setHl7(string $hl7): void
     {

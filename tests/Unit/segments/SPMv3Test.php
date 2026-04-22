@@ -44,8 +44,6 @@ SPM|1|||BLD^Bloed^L|||||||||||||20260127174848|||N|||||||^Heparinebuis (01)^L
     ],
 ]);
 it('can write SPM', function (\mmerlijn\msgRepo\Msg $msg, string $expected) {
-
-
     $spm = new \mmerlijn\msgHl7\segments\SPM();
     $spm->setMsg($msg);
     $string = $spm->setDatetimeFormat("YmdHis")->write();
