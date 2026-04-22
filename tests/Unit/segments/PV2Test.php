@@ -8,14 +8,14 @@ it('can get PV2', function () {
 PV2|||CODE001^lab^99zda");
     $msg = $hl7->getMsg(new Msg());
     expect($msg->order)
-        ->admit_reason_name->toBe("lab")
-        ->admit_reason_code->toBe("CODE001");
+        ->admit_reason->value->toBe("lab")
+        ->admit_reason->code->toBe("CODE001");
 });
 
 it('can set PV2', function () {
     $msg = new Msg();
-    $msg->order->admit_reason_code = "ABC123";
-    $msg->order->admit_reason_name = "LAB";
+    $msg->order->admit_reason->code = "ABC123";
+    $msg->order->admit_reason->value = "LAB";
     $string = (new Hl7())->setMsg($msg)->write();
     expect($string)->toContain("ABC123^LAB^99zda");
 });

@@ -1,6 +1,7 @@
 <?php
 
 use mmerlijn\msgHl7\Hl7;
+use mmerlijn\msgHl7\segments\Z03;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Observation;
 
@@ -20,7 +21,7 @@ Z03|SALT22
                         ],
                         specimens: [
                             new \mmerlijn\msgRepo\Specimen(
-                                test: new \mmerlijn\msgRepo\TestCode(
+                                type: new \mmerlijn\msgRepo\TestCode(
                                     code: "BCBB",
                                     value: "NIPT EDTA",
                                     source: "L"
@@ -37,7 +38,7 @@ Z03|SALT22
 it('can write Z03', function (\mmerlijn\msgRepo\Msg $msg, string $expected) {
 
 
-    $z03 = new \mmerlijn\msgHl7\segments\Z03();
+    $z03 = new Z03();
     $z03->setMsg($msg);
     $string = $z03->write();
 
@@ -52,7 +53,7 @@ it('can write Z03', function (\mmerlijn\msgRepo\Msg $msg, string $expected) {
                         ],
                         specimens: [
                             new \mmerlijn\msgRepo\Specimen(
-                                test: new \mmerlijn\msgRepo\TestCode(
+                                type: new \mmerlijn\msgRepo\TestCode(
                                     code: "BCBB",
                                     value: "NIPT EDTA",
                                     source: "L"

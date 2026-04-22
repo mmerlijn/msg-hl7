@@ -11,10 +11,10 @@ it('can read OBR', function (string $hl7, Msg $expectedRepo) {
         ->and($msg->order->requester->agbcode)->toBe($expectedRepo->order->requester->agbcode)
         ->and($msg->order->requester->name->name)->toBe($expectedRepo->order->requester->name->name)
         ->and($msg->order->requests[0]->test->code)->toBe($expectedRepo->order->requests[0]->test->code)
-        ->and($msg->order->requests[0]->test->name)->toBe($expectedRepo->order->requests[0]->test->name)
+        ->and($msg->order->requests[0]->test->value)->toBe($expectedRepo->order->requests[0]->test->name)
         ->and($msg->order->requests[0]->test->source)->toBe($expectedRepo->order->requests[0]->test->source)
         ->and($msg->order->requests[0]->other_test->code)->toBe($expectedRepo->order->requests[0]->other_test->code)
-        ->and($msg->order->requests[0]->other_test->name)->toBe($expectedRepo->order->requests[0]->other_test->name)
+        ->and($msg->order->requests[0]->other_test->value)->toBe($expectedRepo->order->requests[0]->other_test->name)
         ->and($msg->order->requests[0]->other_test->source)->toBe($expectedRepo->order->requests[0]->other_test->source)
         ->and($msg->order->requests[0]->id)->toBe($expectedRepo->order->requests[0]->id);
 
@@ -161,6 +161,6 @@ it('can add manual segments', function () {
 });
 it('can read manual segments', function () {
 
-});
+})->skip();
 
 

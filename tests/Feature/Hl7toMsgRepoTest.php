@@ -108,7 +108,7 @@ SPM|1|||BLD^Bloed^L||||||||||||||||N|||||||^Heparinebuis (01)^L",
                         id: "FUYTMNJYGA3TKNRWGA",
                         specimens: [
                             new Specimen(
-                                test: new \mmerlijn\msgRepo\TestCode(
+                                type: new \mmerlijn\msgRepo\TestCode(
                                     code: "BLD",
                                     value: "Bloed",
                                     source: "L"
@@ -434,7 +434,7 @@ OBR|4|ZP100120397||TIJD^TIJD^L|||||||O|||||01123456^Blank^M.A.^^^^^^VEKTIS",
                         ],
                         specimens: [
                             new Specimen(
-                                test: new \mmerlijn\msgRepo\TestCode(
+                                type: new \mmerlijn\msgRepo\TestCode(
                                     code: "ORH",
                                     value: "Overige materialen",
                                     source: "L"
@@ -456,7 +456,7 @@ OBR|4|ZP100120397||TIJD^TIJD^L|||||||O|||||01123456^Blank^M.A.^^^^^^VEKTIS",
                         id: "GE4DMNRTGUYTKNI",
                         specimens: [
                             new Specimen(
-                                test: new \mmerlijn\msgRepo\TestCode(
+                                type: new \mmerlijn\msgRepo\TestCode(
                                     code: "BLD",
                                     value: "Bloed",
                                     source: "L"

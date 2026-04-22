@@ -333,11 +333,7 @@ array(10) {
         string(17) "Covid-19 verdacht"
         ["test_source"]=>
         string(5) "99zdl"
-        ["other_test_code"]=>
-        string(0) ""
-        ["other_test_name"]=>
-        string(0) ""
-        ["other_test_source"]=>
+        ["other_test"]=> \mmerlijn\msgRepo\TestCode::class
         string(0) ""
         ["quantity"]=>
         string(0) ""
@@ -367,12 +363,7 @@ array(10) {
         string(9) "Urgentie?"
         ["test_source"]=>
         string(5) "99zdl"
-        ["other_test_code"]=>
-        string(0) ""
-        ["other_test_name"]=>
-        string(38) "Urgent (vandaag best effort NIET CITO)"
-        ["other_test_source"]=>
-        string(5) "99zda"
+        ["other_test"]=> \mmerlijn\msgRepo\TestCode::class
         ["quantity"]=>
         string(0) ""
         ["reference_range"]=>
@@ -398,12 +389,7 @@ array(10) {
         string(3) "CRP"
         ["test_source"]=>
         string(5) "99zdl"
-        ["other_test_code"]=>
-        string(0) ""
-        ["other_test_name"]=>
-        string(0) ""
-        ["other_test_source"]=>
-        string(0) ""
+        ["other_test"]=> \mmerlijn\msgRepo\TestCode::class
         ["comments"]=>
         array(0) {
         }
@@ -418,12 +404,7 @@ array(10) {
         string(4) "TIJD"
         ["test_source"]=>
         string(5) "99zdl"
-        ["other_test_code"]=>
-        string(0) ""
-        ["other_test_name"]=>
-        string(0) ""
-        ["other_test_source"]=>
-        string(0) ""
+        ["other_test"]=> \mmerlijn\msgRepo\TestCode::class
         ["comments"]=>
         array(0) {
         }

@@ -149,7 +149,7 @@ OBR|2|ZD12345678||TIJD^TIJD^99zdl|||||||O|||||01123456^van der Plas^R.^^^^^^VEKT
     $msg->order->addObservation(new \mmerlijn\msgRepo\Observation(value: "3", test: new \mmerlijn\msgRepo\TestCode(code: "BLAUW", value: "is blauw")));
     $hl7->setMsg($msg);
     //dd($msg->order->toArray());
-    $string = $hl7->setUseSegments(['MSH', 'PID', 'PV1', 'PV2', 'IN1', 'ORC', 'OBR', 'OBX'])->setRepeatORC(false)->write(true);
+    $string = $hl7->setUseSegments(['MSH', 'PID', 'PV1', 'PV2', 'IN1', 'ORC', 'OBR', 'OBX'])->setRepeatORC(false)->setDatetimeFormat("YmdHisO")->write(true);
     expect($string)->toBe("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1" . chr(13) .
         "PID|1||123456782^^^NLMINBIZA^NNNLD~ZD12345678^^^ZorgDomein^VN||Testname&&Testname^A^B^^^^L||19800623|M|||Schoonstraat 38 A&Schoonstraat&38^A^Amsterdam^^1040AB^NL^M||06 1234 1234^PRN^CP||||||||||||||||||Y|NNNLD" . chr(13) .
         "PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V" . chr(13) .

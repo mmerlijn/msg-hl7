@@ -12,6 +12,9 @@ class SPM extends Segment implements SegmentInterface
 {
     public string $name = "SPM";
 
+    protected array $date_fields = [
+        "17.0.0" => "datetime", //repo->order->observation_at
+    ];
     public function getMsg(Msg $msg): Msg
     {
         $specimen = new Specimen(

@@ -80,7 +80,7 @@ it('create hl7', function () {
     $out = $hl7->setDatetimeFormat("YmdHis")->write();
     expect($out)
         ->toBe('MSH|^~\&|agendasalt|SALT|Mirth|Test|20231211110000||ORM^001^ORM_001|123|P|2.5|||||NLD|8859/1' . chr(13) .
-            'PID|1||123456782^^^NLMINBIZA^NNNLD~1234^^^ZorgDomein^VN||de Groot&de&Groot^A^^^^^L||20000101|M|||Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL^M||06 1234 5678^PRN^CP~^NET^Internet^test@mail.com||||||||||||||||||Y|NNNLD' . chr(13) .
+            'PID|1||123456782^^^NLMINBIZA^NNNLD~1234^^^ZorgDomein^VN||de Groot&de&Groot^A^^^^^L||20000101|M|||Schoonstraat 38 a&Schoonstraat&38^a^Amsterdam^^1000CC^NL||06 1234 5678^PRN^CP~^NET^Internet^test@mail.com||||||||||||||||||Y|NNNLD' . chr(13) .
             'PV1|1|O||^Test|||||||||||||||||||||||||||||||||||||||||||||||V' . chr(13) .
             'PV2|||LABEDG001^laboratorium^99zda' . chr(13) .
             'IN1|1|^null|123^^^VEKTIS^UZOVI|||||||||||||||||||||||||||||||||123456789' . chr(13) .
@@ -149,7 +149,7 @@ OBX|1|ST|AI^Opmerkingen / klinische gegevens^99zdl||Ischemische colitis, kwetsba
     $msg=$hl7->getMsg(new Msg());
     $outHl7=(new Hl7())->setMsg($msg)->setUseSegments(['MSH', 'PID', 'PV1', 'PV2', 'IN1', 'ORC', 'OBR', 'OBX'])->write();
     expect($outHl7)->toBe("MSH|^~\&|ZorgDomein||OrderModule||20251215215057+0100||ORM^O01^ORM_O01|c3c8f363-1b66-329e-88d6-969eab7fe721|P|2.4|||||NLD|8859/1".chr(13).
-"PID|1||ZD248026420^^^ZorgDomein^VN||Molenaar&&Molenaar^J^B^^^^L||19490129|F|||Van Wijkstraat 92-68&Van Wijkstraat&92^68^Kornhorn^^9801TA^NL^M||020 0536 242^PRN^PH||||||||||||||||||Y|NNNLD".chr(13).
+"PID|1||ZD248026420^^^ZorgDomein^VN||Molenaar&&Molenaar^J^B^^^^L||19490129|F|||Van Wijkstraat 92-68&Van Wijkstraat&92^68^Kornhorn^^9801TA^NL^M||020 0536 242^PRN^PH||||||||||||||||||N|NNNLD".chr(13).
 "PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V".chr(13).
 "PV2|||LABEDG001^laboratorium^99zda".chr(13).
 "IN1|1|^null|3343^^^VEKTIS^UZOVI".chr(13).
