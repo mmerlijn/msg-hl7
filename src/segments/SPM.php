@@ -66,9 +66,6 @@ class SPM extends Segment implements SegmentInterface
         if($msg->order->observation_at){
             $this->setDate($msg->order->observation_at, 17);
         }
-        if($msg->order->observation_at){
-            $this->setDate($msg->order->observation_at, 17);
-        }
 
         $this->setData($msg->order->requests[$request_key]->specimens[$specimen_key]->available?"Y":"N", 20);
         //container type 27
