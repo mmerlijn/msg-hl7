@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "184ad97f7143d6568f1e4c4e45a855d1",
+    "content-hash": "19ecf60833bb7dedf77ce201f13ce64a",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -77,16 +77,16 @@
         },
         {
             "name": "mmerlijn/msg-repo",
-            "version": "v3.4.19",
+            "version": "v3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mmerlijn/msg-repo.git",
-                "reference": "201f65d0147c5a4f8af773baf883a081d17a37cf"
+                "reference": "c365da0e7353ffaa6f90f6515709d533b8b2ae5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mmerlijn/msg-repo/zipball/201f65d0147c5a4f8af773baf883a081d17a37cf",
-                "reference": "201f65d0147c5a4f8af773baf883a081d17a37cf",
+                "url": "https://api.github.com/repos/mmerlijn/msg-repo/zipball/c365da0e7353ffaa6f90f6515709d533b8b2ae5c",
+                "reference": "c365da0e7353ffaa6f90f6515709d533b8b2ae5c",
                 "shasum": ""
             },
             "require": {
@@ -121,9 +121,9 @@
             "description": "Dutch healthcare read/write edifact to/from repository",
             "support": {
                 "issues": "https://github.com/mmerlijn/msg-repo/issues",
-                "source": "https://github.com/mmerlijn/msg-repo/tree/v3.4.19"
+                "source": "https://github.com/mmerlijn/msg-repo/tree/v3.5.1"
             },
-            "time": "2026-04-20T07:16:08+00:00"
+            "time": "2026-05-05T13:04:13+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -4616,7 +4616,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.3"
+        "php": "^8.5"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"
