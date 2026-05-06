@@ -26,7 +26,7 @@ class PID extends Segment implements SegmentInterface
         $counterLocal = 0;
         $counter = 0;
         foreach ($msg->patient->ids as $k => $id) {
-            if ($id->authority == 'SALT') {
+            if ($id->authority == 'SALT' and $k!=0) {
                 $this->setData($id->id, 4, $counterLocal);
                 $this->setData($id->authority, 4, $counterLocal, 3);
                 $this->setData($id->code, 4, $counterLocal, 4);
@@ -186,7 +186,10 @@ class PID extends Segment implements SegmentInterface
                 if (in_array($this->getData(13, $k, 2), ["CP", "PH"])) {
                     $msg->patient->addPhone($this->getData(13, $k));
                 } elseif ($this->getData(13, $k, 1) == "NET") {
-                    $msg->patient->email = $this->getData(13, $k, 3);
+                    $email = $this->getData(13, $k, 1);
+                    if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+                        $msg->patient->email = $email;
+                    }
                 }
             }
         }
@@ -197,6 +200,7 @@ class PID extends Segment implements SegmentInterface
                 }
             }
         }
+
         if(isset($this->data[24])){
             $msg->patient->multiple_births = in_array($this->getData(24),['Y','y','j','J',1,'1']);
         }

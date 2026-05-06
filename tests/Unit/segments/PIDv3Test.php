@@ -71,10 +71,12 @@ PID|1||900073962^^^NLMINBIZA^NNNLD~ZP100120391^^^ZorgDomein^VN||Testpatiënt - v
 
 ]);
 
-it('can write patient details', function (\mmerlijn\msgRepo\Patient $patient, string $expectedPid) {
+it('can write patient details', function (\mmerlijn\msgRepo\Patient $patient, string $expectedPid,bool $saltIdFirst=false) {
     $msg = new Msg();
     $msg->patient = $patient;
-
+    if($saltIdFirst) {
+        $msg->patient->setSaltIdFirst();
+    }
     $pid = new \mmerlijn\msgHl7\segments\PID();
     $pid->setMsg($msg);
     $string = $pid->write();
@@ -110,6 +112,11 @@ it('can write patient details', function (\mmerlijn\msgRepo\Patient $patient, st
                     code: "NNNLD"
                 ),
                 new \mmerlijn\msgRepo\Id(
+                    id: "1234",
+                    authority: "SALT",
+                    code: "VN"
+                ),
+                new \mmerlijn\msgRepo\Id(
                     id: "ZD800112345",
                     authority: "ZorgDomein",
                     code: "VN"
@@ -117,12 +124,55 @@ it('can write patient details', function (\mmerlijn\msgRepo\Patient $patient, st
             ],
             email: "demo@zorgdomein.nl"
         )),
-        "PID|1||800112345^^^NLMINBIZA^NNNLD~ZD800112345^^^ZorgDomein^VN||de Jansen - van Pieters&van&Pieters&de&Jansen^J^D^^^^L||19850715|M|||Kerkstraat 12 a&Kerkstraat&12^a^Utrecht^^1234AB^NL||06 9876 5432^PRN^CP~^NET^Internet^demo@zorgdomein.nl||||||||||||||||||Y|NNNLD"
-    ],
+        "PID|1||800112345^^^NLMINBIZA^NNNLD~ZD800112345^^^ZorgDomein^VN|1234^^^SALT^VN|de Jansen - van Pieters&van&Pieters&de&Jansen^J^D^^^^L||19850715|M|||Kerkstraat 12 a&Kerkstraat&12^a^Utrecht^^1234AB^NL||06 9876 5432^PRN^CP~^NET^Internet^demo@zorgdomein.nl||||||||||||||||||Y|NNNLD"
+    ], [
+            fn() => (new \mmerlijn\msgRepo\Patient(
+                sex: \mmerlijn\msgRepo\Enums\PatientSexEnum::MALE,
+                name: new \mmerlijn\msgRepo\Name(
+                    initials: "J.D.",
+                    lastname: "Jansen",
+                    prefix: "de",
+                    own_lastname: "Pieters",
+                    own_prefix: "van"
+                ),
+                dob: new \Carbon\Carbon("1985-07-15"),
+                address: new \mmerlijn\msgRepo\Address(
+                    postcode: "1234 AB",
+                    city: "Utrecht",
+                    street: "Kerkstraat",
+                    building_nr: "12",
+                    building_addition: "a",
+                    country: "NL"
+                ),
+                phones: [
+                    new \mmerlijn\msgRepo\Phone("+31698765432"),
+                ],
+                ids: [
+                    new \mmerlijn\msgRepo\Id(
+                        id: "1234",
+                        authority: "SALT",
+                        code: "VN"
+                    ),
+                    new \mmerlijn\msgRepo\Id(
+                        id: "800112345",
+                        authority: "NLMINBIZA",
+                        code: "NNNLD"
+                    ),
+                    new \mmerlijn\msgRepo\Id(
+                        id: "ZD800112345",
+                        authority: "ZorgDomein",
+                        code: "VN"
+                    )
+                ],
+                email: "demo@zorgdomein.nl"
+            )),
+            "PID|1||1234^^^SALT^VN~800112345^^^NLMINBIZA^NNNLD~ZD800112345^^^ZorgDomein^VN||de Jansen - van Pieters&van&Pieters&de&Jansen^J^D^^^^L||19850715|M|||Kerkstraat 12 a&Kerkstraat&12^a^Utrecht^^1234AB^NL||06 9876 5432^PRN^CP~^NET^Internet^demo@zorgdomein.nl||||||||||||||||||Y|NNNLD",
+        true
+        ],
 ]);
 
 it('only reads valid email',function(){
-    $pid = "PID|1||800112345^^^NLMINBIZA^NNNLD~ZD800112345^^^ZorgDomein^VN||de Jansen - van Pieters&van&Pieters&de&Jansen^J^D^^^^L||19850715|M|||Kerkstraat 12 a&Kerkstraat&12^a^Utrecht^^1234AB^NL||06 9876 5432^PRN^CP~^NET^Internet^not_valid||||||||||||||||||Y|NNNLD";
+    $pid = "MSH|^~\&|ZorgDomein".chr(13)."PID|1||800112345^^^NLMINBIZA^NNNLD~ZD800112345^^^ZorgDomein^VN||de Jansen - van Pieters&van&Pieters&de&Jansen^J^D^^^^L||19850715|M|||Kerkstraat 12 a&Kerkstraat&12^a^Utrecht^^1234AB^NL||06 9876 5432^PRN^CP~^NET^Internet^not_valid||||||||||||||||||Y|NNNLD";
     $hl7v3 = new \mmerlijn\msgHl7\Hl7($pid);
     $msgRepo = $hl7v3->getMsg(new Msg());
     expect($msgRepo->patient->email)->toBeNull();
