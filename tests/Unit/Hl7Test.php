@@ -9,7 +9,7 @@ use mmerlijn\msgHl7\segments\SPM;
 use mmerlijn\msgHl7\segments\Z03;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Request;
-use mmerlijn\msgRepo\Result;
+
 
 it('can split segements', function () {
     $hl7 = new Hl7("MSH|^~\&|ZorgDomein||OrderModule||20220102161545+0200||ORM^O01^ORM_O01|e49ce31d|P|2.4|||||NLD|8859/1
