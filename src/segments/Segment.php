@@ -4,6 +4,7 @@ namespace mmerlijn\msgHl7\segments;
 
 
 use Carbon\Carbon;
+use mmerlijn\msgHl7\helpers\Hl7Text;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\TestCode;
 
@@ -108,7 +109,8 @@ class Segment implements SegmentInterface
         if (!($this->data[$field][$repetition][$component][$subComponent] ?? false)) {
             $this->expandData($field, $repetition, $component, $subComponent);
         }
-        $this->data[$field][$repetition][$component][$subComponent] = preg_replace('/(\||~|\^|\&)/', '\$1', $value ?? "");
+        $this->data[$field][$repetition][$component][$subComponent] = new Hl7Text($value)->encode();
+        //$this->data[$field][$repetition][$component][$subComponent] = preg_replace('/(\||~|\^|\&)/', '\$1', $value ?? "");
         return $this;
     }
 
@@ -131,7 +133,8 @@ class Segment implements SegmentInterface
 
     public function getData(int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): string
     {
-        return preg_replace('/\\\(\||~|\^|&)/', '$1', $this->data[$field][$repetition][$component][$subComponent] ?? "");
+        return new Hl7Text($this->data[$field][$repetition][$component][$subComponent] ?? "")->decode();
+        //return preg_replace('/\\\(\||~|\^|&)/', '$1', $this->data[$field][$repetition][$component][$subComponent] ?? "");
     }
 
     public function getDate(int $field, int $repetition = 0, int $component = 0, int $subComponent = 0): ?Carbon

@@ -73,7 +73,7 @@ BLG||CH";
     $hl7_new = new Hl7($hl7);
 
     $hl7_new->segments[$hl7_new->findSegmentKey("OBR")]->setDate(Carbon::now(), 7); //obr kan niet worden gevonden
-    $hl7_new->addSegment((new SPM())
+    $hl7_new->addSegment(new SPM()
         ->setData(1, 1)
         ->setData("SB42412KS", 2)
         ->setData("BCBB", 4, 0, 1)
@@ -81,8 +81,8 @@ BLG||CH";
         ->setData("202303131553", 17)
         ->setData("N", 20)
     );
-    $hl7_new->addSegment((new Z03())->setData("AZLD", 1));
-    $hl7_new->addSegment((new SPM())
+    $hl7_new->addSegment(new Z03()->setData("AZLD", 1));
+    $hl7_new->addSegment(new SPM()
         ->setData(2, 1)
         ->setData("SB42412KZ", 2)
         ->setData("BCBB", 4, 0, 1)
@@ -91,7 +91,7 @@ BLG||CH";
         ->setData("N", 20)
     );
     $hl7_new->segments[$hl7_new->findSegmentKey("ORC")]->setData("Nummer", 4);
-    $hl7_new->addSegment((new Z03())->setData("AZLD", 1));
+    $hl7_new->addSegment(new Z03()->setData("AZLD", 1));
     $hl7_new->removeSegment("BLG");
     //var_dump($hl7_new->segments);
     expect($hl7_new->setDatetimeFormat('YmdHi')->setUseSegments(['MSH', 'PID', 'PV1', 'PV2', 'IN1', 'ORC', 'OBR', 'OBX', 'SPM', 'Z03'])->write())

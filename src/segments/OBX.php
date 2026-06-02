@@ -3,7 +3,7 @@
 namespace mmerlijn\msgHl7\segments;
 
 use Carbon\Carbon;
-use mmerlijn\msgHl7\helpers\Hl7Formatter;
+use mmerlijn\msgHl7\helpers\Hl7Text;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Enums\ObservationTestCodeEnum;
 use mmerlijn\msgRepo\Enums\ResultFlagEnum;
@@ -79,13 +79,13 @@ class OBX extends Segment implements SegmentInterface
         $this->setData($msg->order->requests[$request_key]->observations[$result_key]->type->value, 2);
         //test code / name
         $this->setData($msg->order->requests[$request_key]->observations[$result_key]->test->code, 3);
-        $this->setData(Hl7Formatter::encode($msg->order->requests[$request_key]->observations[$result_key]->test->value), 3, 0, 1);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->test->value, 3, 0, 1);
         $this->setData($msg->order->requests[$request_key]->observations[$result_key]->test->source ?: $msg->default_source, 3, 0, 2);
         //result
-        $this->setData(Hl7Formatter::encode($msg->order->requests[$request_key]->observations[$result_key]->value), 5);
+        $this->setData($msg->order->requests[$request_key]->observations[$result_key]->value, 5);
         foreach ($msg->order->requests[$request_key]->observations[$result_key]->values as $i => $testCode) {
             $this->setData($testCode->code, 5, $i, 0);
-            $this->setData(Hl7Formatter::encode($testCode->value), 5, $i, 1);
+            $this->setData($testCode->value, 5, $i, 1);
             $this->setData($testCode->source, 5, $i, 2);
         }
         //units
