@@ -186,7 +186,7 @@ class PID extends Segment implements SegmentInterface
                 if (in_array($this->getData(13, $k, 2), ["CP", "PH"])) {
                     $msg->patient->addPhone($this->getData(13, $k));
                 } elseif ($this->getData(13, $k, 1) == "NET") {
-                    $email = $this->getData(13, $k, 1);
+                    $email = $this->getData(13, $k, 3);
                     if(filter_var($email, FILTER_VALIDATE_EMAIL)){
                         $msg->patient->email = $email;
                     }

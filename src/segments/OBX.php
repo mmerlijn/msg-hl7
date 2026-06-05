@@ -2,15 +2,12 @@
 
 namespace mmerlijn\msgHl7\segments;
 
-use Carbon\Carbon;
-use mmerlijn\msgHl7\helpers\Hl7Text;
 use mmerlijn\msgHl7\validation\Validator;
 use mmerlijn\msgRepo\Enums\ObservationTestCodeEnum;
 use mmerlijn\msgRepo\Enums\ResultFlagEnum;
 use mmerlijn\msgRepo\Enums\ValueTypeEnum;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Observation;
-use mmerlijn\msgRepo\Result;
 use mmerlijn\msgRepo\TestCode;
 
 class OBX extends Segment implements SegmentInterface

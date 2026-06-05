@@ -19,7 +19,6 @@ class Hl7Text
         }
         $this->data = array_map(function ($item) {
             $item = preg_replace('/\\\/', '\\E\\', $item); //backslash
-            //$item = preg_replace('/\\\r/', '', $item); //carriage return
             $item = preg_replace('/\|/', '\\F\\', $item); //field separator |
             $item = preg_replace('/~/', '\\R\\', $item); //repetition separator ~
             $item = preg_replace('/\^/', '\\S\\', $item); //component separator ^
@@ -27,15 +26,13 @@ class Hl7Text
             return preg_replace('/\r\n|\r|\n/', '\\.br\\', $item);
         }, $this->data);
         $this->data = implode("\\.br\\", $this->data);
-
-
         return trim($this->data);
     }
 
     public function decode(): string
     {
         $this->data = preg_replace('/\\\E\\\/', '/\\\/', $this->data); //backslash
-        //$this->data = preg_replace( '/\\\r/','', $this->data); //carriage return
+        $this->data = preg_replace( '/\r/',PHP_EOL, $this->data); //carriage return
         $this->data = preg_replace('/\\\F\\\/', '|', $this->data); //field separator |
         $this->data = preg_replace('/\\\R\\\/', '~', $this->data); //repetition separator ~
         $this->data = preg_replace('/\\\S\\\/', '^', $this->data); //component separator ^

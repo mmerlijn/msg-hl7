@@ -109,7 +109,7 @@ class Segment implements SegmentInterface
         if (!($this->data[$field][$repetition][$component][$subComponent] ?? false)) {
             $this->expandData($field, $repetition, $component, $subComponent);
         }
-        $this->data[$field][$repetition][$component][$subComponent] = new Hl7Text($value)->encode();
+        $this->data[$field][$repetition][$component][$subComponent] = new Hl7Text($value??"")->encode();
         //$this->data[$field][$repetition][$component][$subComponent] = preg_replace('/(\||~|\^|\&)/', '\$1', $value ?? "");
         return $this;
     }

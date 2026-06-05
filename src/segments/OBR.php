@@ -60,6 +60,7 @@ class OBR extends Segment implements SegmentInterface
 
         $msg->order->where = OrderWhereEnum::set($this->getData(11));
 
+        $msg->order->info = $this->getData(13)?:"";
         $msg->order->requester->agbcode = $this->getData(16);
         if (!$msg->order->requester->name->name) {
             $msg->order->requester->setName(
@@ -113,7 +114,7 @@ class OBR extends Segment implements SegmentInterface
         }
         $this->setDate($msg->order->observation_at, 7);
         $this->setData($msg->order->where->getHl7(), 11);
-
+        $this->setData($msg->order->info,13);
         $this->setData($msg->order->requester->agbcode, 16);
         $this->setData($msg->order->requester->name->getLastnames(), 16, 0, 1);
         $this->setData($msg->order->requester->name->initials, 16, 0, 2);

@@ -72,6 +72,13 @@ class Hl7
         }
         return $this;
     }
+    public function useSPM(): self
+    {
+        if (!in_array("SPM", $this->useSegments)) {
+            $this->useSegments[] = "SPM";
+        }
+        return $this;
+    }
 
     public function setUseSegments(array $segments, bool $add = false): self
     {
