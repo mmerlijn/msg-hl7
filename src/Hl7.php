@@ -177,26 +177,27 @@ class Hl7
     {
         if (!$this->hasSegment("MSH")) {
             $this->segments = [match ($msg->msgType->structure) {
-                "OML_O21" => (new MSH("MSH|DEFAULT||||||||OML^O21^OML_O21||P|2.5.1|||||NLD|8859/1"))->setMsg($msg),
-                "ORM_O01" => (new MSH("MSH|DEFAULT||||||||ORM^O01^ORM_O01||P|2.4|||||NLD|8859/1"))->setMsg($msg),
-                default => (new MSH("MSH|DEFAULT||||||||||||||||NLD|8859/1"))->setMsg($msg),
+                "OML_O21" => new MSH("MSH|DEFAULT||||||||OML^O21^OML_O21||P|2.5.1|||||NLD|8859/1")->setMsg($msg),
+                "ORM_O01" => new MSH("MSH|DEFAULT||||||||ORM^O01^ORM_O01||P|2.4|||||NLD|8859/1")->setMsg($msg),
+                default => new MSH("MSH|DEFAULT||||||||||||||||NLD|8859/1")->setMsg($msg),
             }, ...$this->segments];
         } else {
             $this->segments[$this->findSegmentKey("MSH")]->setMsg($msg);
         }
         if ($msg->msgType->structure == "OML_O21" and $msg->hasComments() and in_array("NTE", $this->useSegments)) {
-            if ($this->segments[1]?->name != "NTE") {
-                //make space for NTE after MSH
-                array_splice($this->segments, 1, 0, [(new NTE())->setComment(0, $msg->comments[0])]);
-            } else {
-                foreach ($msg->comments as $id => $comment) {
+            foreach ($msg->comments as $id => $comment) {
+                if (!isset($this->segments[$id + 1])) {
+                    $this->segments[$id + 1] = new NTE()->setComment($id, $comment);
+                } elseif ($this->segments[$id + 1]?->name != "NTE"){
+                    array_splice($this->segments, 1, 0, [new NTE()->setComment($id, $comment)]);
+                }else {
                     $this->segments[$id + 1]->setComment($id, $comment);
                 }
             }
         }
         //set patient segments
         if (!$this->hasSegment("PID")) {
-            $this->segments[] = (new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD"))->setMsg($msg);
+            $this->segments[] = new PID("PID|1||||^^^^^^L||||||&&^^^^^NL^M||||||||||||||||||||Y|NNNLD")->setMsg($msg);
             if ($msg->patient->hasComments() and in_array("NTE", $this->useSegments)) {
                 foreach ($msg->patient->comments as $id => $comment) {
                     $this->segments[] = (new NTE)->setComment($id, $comment);
@@ -371,6 +372,11 @@ class Hl7
 
     private function setHl7(string $hl7): void
     {
-        $this->msg = preg_replace('/^(MSH\|\^.+)(MSH\|\^.+)/s', '$1', $hl7);
+        $pos = strrpos($hl7,"MSH|^");
+        if ($pos !== false) {
+            $this->msg = substr($hl7,$pos);
+        }else{
+            $this->msg = $hl7;
+        }
     }
 }
