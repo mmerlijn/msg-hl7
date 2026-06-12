@@ -29,7 +29,7 @@ it('can read ORC', function (string $hl7, Msg $expectedRepo) {
         ->and($msg->sender->address->postcode)->toBe($expectedRepo->sender->address->postcode)
         ->and($msg->sender->address->country)->toBe($expectedRepo->sender->address->country)
         ->and($msg->sender->phone->number)->toBe($expectedRepo->sender->phone->number)
-        ->and($msg->order->start_date->format('Y-m-d H:i:s'))->toBe($expectedRepo->order->start_date->format('Y-m-d H:i:s'));
+        ->and($msg->order->start_date?->format('Y-m-d H:i:s'))->toBe($expectedRepo->order->start_date?->format('Y-m-d H:i:s'));
 })->with([
     ["MSH|^~\&|ZorgDomein||Labtrain|SALT|20251112125133+0100||OML^O21^OML_O21|d0a06274854e4824a8a4|P|2.5.1|||||NLD|8859/1
 ORC|NW|ZP100120392||ZP100120392|||^^^20251205000000+0100^^R||20251112125346+0100|01123456^Blank^M.A.^^^^^^VEKTIS||01123456^Blank^M.A.^^^^^^VEKTIS|^^^^^^^^SALT||||50009046^SALT^VEKTIS||||SALT^^50009046^^^VEKTIS|Molenwerf 11&Molenwerf&11^^Koog aan de Zaan^^1541WR^NL|0889100100^WPN^PH
@@ -80,6 +80,51 @@ ORC|NW|ZP100120392||ZP100120392|||^^^20251205000000+0100^^R||20251112125346+0100
         ),
 
     ],
+    ["MSH|^~\&|ZorgDomein||Labtrain|SALT|20251112125133+0100||OML^O21^OML_O21|d0a06274854e4824a8a4|P|2.5.1|||||NLD|8859/1
+ORC|NW|FUYTQNZRGA2DSNZZG4||ZD195380615|||^^^^^R||20260312152645+0100|^van der Piet^AC||01023300^School^E.^^^^^^VEKTIS|^^^^^^^^Huisartsenpraktijk School||||01023301^Huisartsenpraktijk School^VEKTIS||||Huisartsenpraktijk School^^01023301^^^VEKTIS|Groenstraat 2 d&Groenstraat&2^d^Purmerend^^1444AA^NL|0299612345^WPN^PH",
+        fn() => new Msg(
+            order: new \mmerlijn\msgRepo\Order(
+                control: \mmerlijn\msgRepo\Enums\OrderControlEnum::NEW,
+                request_nr: "ZD195380615",
+                priority: false,
+                requester: new \mmerlijn\msgRepo\Contact(
+                    agbcode: "01023300",
+                    name: new \mmerlijn\msgRepo\Name(
+                        initials: "E.",
+                        name: "School"
+                    ),
+                    source: "VEKTIS",
+                    location: "Huisartsenpraktijk School"
+                ),
+                entered_by: new \mmerlijn\msgRepo\Contact(
+                    agbcode: "",
+                    name: new \mmerlijn\msgRepo\Name(
+                        initials: "AC",
+                        name: "van der Piet"
+                    ),
+                ),
+                organisation: new Organisation(
+                    name: "Huisartsenpraktijk School",
+                    agbcode: "01023301",
+                    source: "VEKTIS"
+                ),
+                request_at: new \Carbon\Carbon("2026-03-12 15:26:45+0100"),
+            ),
+            sender: new \mmerlijn\msgRepo\Contact(
+                address: new \mmerlijn\msgRepo\Address(
+                    postcode: "1444AA",
+                    city: "Purmerend",
+                    street: "Groenstraat",
+                    building_nr: "2",
+                    country: "NL"
+                ),
+                phone: new \mmerlijn\msgRepo\Phone(
+                    number: "0299612345"
+                )
+
+            )
+        ),
+]
 ]);
 
 it('can write ORC', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {

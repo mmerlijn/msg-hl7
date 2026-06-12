@@ -18,6 +18,7 @@ class Hl7Text
             $this->data = [$this->data];
         }
         $this->data = array_map(function ($item) {
+            $item = trim($item);
             $item = preg_replace('/\\\/', '\\E\\', $item); //backslash
             $item = preg_replace('/\|/', '\\F\\', $item); //field separator |
             $item = preg_replace('/~/', '\\R\\', $item); //repetition separator ~
@@ -36,10 +37,12 @@ class Hl7Text
         $this->data = preg_replace('/\\\F\\\/', '|', $this->data); //field separator |
         $this->data = preg_replace('/\\\R\\\/', '~', $this->data); //repetition separator ~
         $this->data = preg_replace('/\\\S\\\/', '^', $this->data); //component separator ^
+
         $this->data = preg_replace('/\\\T\\\/', '&', $this->data); //subcomponent separator &
-        $this->data = preg_replace('/\\\.*\\\/', '', $this->data); //diverse tekens
+
         $this->data = preg_replace('/\s+/', ' ', $this->data); //multiple spaces to 1
-        $this->data = str_replace('\\.br\\', PHP_EOL, $this->data);
+        $this->data = preg_replace('/\\\.br\\\/', PHP_EOL, $this->data);
+        $this->data = preg_replace('/\\\.*\\\/', '', $this->data); //diverse tekens
         return trim($this->data);
     }
 
