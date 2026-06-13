@@ -8,7 +8,7 @@ use mmerlijn\msgRepo\Address;
 use mmerlijn\msgRepo\Enums\OrderControlEnum;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
-use mmerlijn\msgRepo\Organisation;
+use mmerlijn\msgRepo\Organization;
 use mmerlijn\msgRepo\Request;
 
 class ORC extends Segment implements SegmentInterface
@@ -58,24 +58,24 @@ class ORC extends Segment implements SegmentInterface
         $msg->order->entered_by->source = $this->getData(10, 0, 8);
 
         if ($this->getData(21, 0, 2)) {
-            $organisation = new Organisation(
+            $organization = new Organization(
                 name: $this->getData(21),
                 agbcode: $this->getData(21, 0, 2),
                 source: $this->getData(21, 0, 5),
             );
         } elseif ($this->getData(17)) {
-            $organisation = new Organisation(
+            $organization = new Organization(
                 name: $this->getData(17, 0, 1),
                 agbcode: $this->getData(17),
                 source: $this->getData(17, 0, 2),
             );
         } elseif ($this->getData(13, 0, 3, 1)) {
-            $organisation = new Organisation(
+            $organization = new Organization(
                 name: $this->getData(13, 0, 3),
                 agbcode: $this->getData(13, 0, 3, 1),
             );
         }
-        $msg->order->organisation = $organisation ?? new Organisation();
+        $msg->order->organization = $organization ?? new Organization();
 
         if (str_starts_with($this->getData(12), "0")) {
             $msg->patient->last_requester = $this->getData(12);
@@ -86,22 +86,31 @@ class ORC extends Segment implements SegmentInterface
         } else {
             $msg->patient->last_requester = $this->getData(12);
         }
-        if ($msg->order->organisation->agbcode) {
-            $msg->patient->last_organisation = $msg->order->organisation->agbcode;
+        if ($msg->order->organization->agbcode) {
+            $msg->patient->last_organization = $msg->order->organization->agbcode;
+        }
+        if($this->getData(22, 0, 2)) {
+            $address = new Address(
+                postcode: preg_replace('/\s/', '', $this->getData(22, 0, 4)),
+                city: $this->getData(22, 0, 2),
+                street: $this->getData(22, 0, 0, 1),
+                building: $this->getData(22, 0, 0, 2) . $this->getData(22, 0, 1),
+                country: $this->getData(22, 0, 5),
+            );
+            $msg->sender->setAddress($address);
+            $msg->order->organization->setAddress($address);
+            if (!$msg->sender->address->street) {
+                $before = '/(?=.)\s' . $msg->sender->address->building_nr . '.*/';
+                $msg->sender->address->street = preg_replace($before, "", $this->getData(22));
+            }
+            if (!$msg->order->organization->address->street) {
+                $before = '/(?=.)\s' . $msg->sender->address->building_nr . '.*/';
+                $msg->order->organization->address->street = preg_replace($before, "", $this->getData(22));
+            }
         }
 
-        $msg->sender->setAddress(new Address(
-            postcode: preg_replace('/\s/', '', $this->getData(22, 0, 4)),
-            city: $this->getData(22, 0, 2),
-            street: $this->getData(22, 0, 0, 1),
-            building: $this->getData(22, 0, 0, 2) . $this->getData(22, 0, 1),
-            country: $this->getData(22, 0, 5),
-        ));
-        if (!$msg->sender->address->street) {
-            $before = '/(?=.)\s' . $msg->sender->address->building_nr . '.*/';
-            $msg->sender->address->street = preg_replace($before, "", $this->getData(22));
-        }
         $msg->sender->setPhone($this->getData(23));
+        $msg->order->organisation->setPhone($this->getData(23));
 
         $this->msgSegmentGetter($msg);
         return $msg;
@@ -144,20 +153,20 @@ class ORC extends Segment implements SegmentInterface
         $this->setData($msg->order->requester->source, 12, 0, 8);
         $this->setData($msg->order->requester->location, 13, 0, 8);
 
-        //organisation
-        $this->setData($msg->order->organisation->agbcode, 13, 0, 3, 1);
-        $this->setData($msg->order->organisation->name, 13, 0, 3);
-        $this->setData($msg->order->organisation->name, 13, 0, 8);
+        //organization
+        $this->setData($msg->order->organization->agbcode, 13, 0, 3, 1);
+        $this->setData($msg->order->organization->name, 13, 0, 3);
+        $this->setData($msg->order->organization->name, 13, 0, 8);
 
         //organization
-        $this->setData($msg->order->organisation->agbcode, 17);
-        $this->setData($msg->order->organisation->name, 17, 0, 1);
-        $this->setData($msg->order->organisation->source, 17, 0, 2);
+        $this->setData($msg->order->organization->agbcode, 17);
+        $this->setData($msg->order->organization->name, 17, 0, 1);
+        $this->setData($msg->order->organization->source, 17, 0, 2);
 
         //organization
-        $this->setData($msg->order->organisation->name, 21);
-        $this->setData($msg->order->organisation->agbcode, 21, 0, 2);
-        $this->setData($msg->order->organisation->source, 21, 0, 5);
+        $this->setData($msg->order->organization->name, 21);
+        $this->setData($msg->order->organization->agbcode, 21, 0, 2);
+        $this->setData($msg->order->organization->source, 21, 0, 5);
 
         //set address
         if ($msg->sender->address->street) {
@@ -168,11 +177,23 @@ class ORC extends Segment implements SegmentInterface
             $this->setData($msg->sender->address->city, 22, 0, 2);
             $this->setData($msg->sender->address->postcode, 22, 0, 4);
             $this->setData($msg->sender->address->country ?: "NL", 22, 0, 5);
+        }elseif($msg->order->organization->address->street) {
+            $this->setData($msg->order->organization->address->street . " " . $msg->sender->address->building, 22);
+            $this->setData($msg->order->organization->address->street, 22, 0, 0, 1);
+            $this->setData($msg->order->organization->address->building_nr, 22, 0, 0, 2);
+            $this->setData($msg->order->organization->address->building_addition, 22, 0, 1);
+            $this->setData($msg->order->organization->address->city, 22, 0, 2);
+            $this->setData($msg->order->organization->address->postcode, 22, 0, 4);
+            $this->setData($msg->order->organization->address->country ?: "NL", 22, 0, 5);
         }
 
         //set telephone
         if ($msg->sender->phone->number) {
             $this->setData($msg->sender->phone, 23);
+            $this->setData("WPN", 23, 0, 1);
+            $this->setData("PH", 23, 0, 2);
+        }elseif($msg->order->organization->phone->number) {
+            $this->setData($msg->order->organization->phone, 23);
             $this->setData("WPN", 23, 0, 1);
             $this->setData("PH", 23, 0, 2);
         }

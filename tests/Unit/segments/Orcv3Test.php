@@ -4,7 +4,7 @@ use mmerlijn\msgHl7\Hl7;
 use mmerlijn\msgRepo\Contact;
 use mmerlijn\msgRepo\Msg;
 use mmerlijn\msgRepo\Name;
-use mmerlijn\msgRepo\Organisation;
+use mmerlijn\msgRepo\Organization;
 
 it('can read ORC', function (string $hl7, Msg $expectedRepo) {
     $hl7 = new Hl7($hl7);
@@ -17,9 +17,9 @@ it('can read ORC', function (string $hl7, Msg $expectedRepo) {
         ->and($msg->order->requester->name->name)->toBe($expectedRepo->order->requester->name->name)
         ->and($msg->order->requester->source)->toBe($expectedRepo->order->requester->source)
         ->and($msg->order->requester->location)->toBe($expectedRepo->order->requester->location)
-        ->and($msg->order->organisation->name)->toBe($expectedRepo->order->organisation->name)
-        ->and($msg->order->organisation->agbcode)->toBe($expectedRepo->order->organisation->agbcode)
-        ->and($msg->order->organisation->source)->toBe($expectedRepo->order->organisation->source)
+        ->and($msg->order->organization->name)->toBe($expectedRepo->order->organization->name)
+        ->and($msg->order->organization->agbcode)->toBe($expectedRepo->order->organization->agbcode)
+        ->and($msg->order->organization->source)->toBe($expectedRepo->order->organization->source)
         ->and($msg->order->entered_by->agbcode)->toBe($expectedRepo->order->entered_by->agbcode)
         ->and($msg->order->entered_by->name->name)->toBe($expectedRepo->order->entered_by->name->name)
         ->and($msg->order->entered_by->source)->toBe($expectedRepo->order->entered_by->source)
@@ -57,7 +57,7 @@ ORC|NW|ZP100120392||ZP100120392|||^^^20251205000000+0100^^R||20251112125346+0100
                     ),
                     source: "VEKTIS"
                 ),
-                organisation: new Organisation(
+                organization: new Organization(
                     name: "SALT",
                     agbcode: "50009046",
                     source: "VEKTIS"
@@ -103,7 +103,7 @@ ORC|NW|FUYTQNZRGA2DSNZZG4||ZD195380615|||^^^^^R||20260312152645+0100|^van der Pi
                         name: "van der Piet"
                     ),
                 ),
-                organisation: new Organisation(
+                organization: new Organization(
                     name: "Huisartsenpraktijk School",
                     agbcode: "01023301",
                     source: "VEKTIS"
@@ -159,7 +159,7 @@ it('can write ORC', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
                     ),
                     source: "VEKTIS"
                 ),
-                organisation: new Organisation(
+                organization: new Organization(
                     name: "SALT",
                     agbcode: "50009046",
                     source: "VEKTIS"
@@ -184,13 +184,13 @@ it('can write ORC', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
     ],
 ]);
 
-it('can read requester and organisation', function (string $orc, Contact $requester, Organisation $organisation) {
+it('can read requester and organization', function (string $orc, Contact $requester, Organization $organization) {
     $hl7 = new Hl7("MSH|^~\&|ZorgDomein||Labtrain|SALT|20251112125133+0100||OML^O21^OML_O21|d0a06274854e4824a8a4|P|2.5.1|||||NLD|8859/1
 " . $orc);
     $msg = $hl7->getMsg(new Msg());
-    expect($msg->order->organisation->name)->toBe($organisation->name)
-        ->and($msg->order->organisation->agbcode)->toBe($organisation->agbcode)
-        ->and($msg->order->organisation->source)->toBe($organisation->source)
+    expect($msg->order->organization->name)->toBe($organization->name)
+        ->and($msg->order->organization->agbcode)->toBe($organization->agbcode)
+        ->and($msg->order->organization->source)->toBe($organization->source)
         ->and($msg->order->requester->name)->toMatchObject($requester->name)
         ->and($msg->order->requester->agbcode)->toBe($requester->agbcode);
 })->with([
@@ -202,7 +202,7 @@ it('can read requester and organisation', function (string $orc, Contact $reques
                 name: "Doe"
             ),
         ),
-        fn() => new Organisation(
+        fn() => new Organization(
             name: "HP Doe",
             agbcode: "07654321",
             source: "VEKTIS"
@@ -216,7 +216,7 @@ it('can read requester and organisation', function (string $orc, Contact $reques
                 name: "Doe"
             ),
         ),
-        fn() => new Organisation(
+        fn() => new Organization(
             name: "",
             agbcode: null,
             source: null
@@ -230,7 +230,7 @@ it('can read requester and organisation', function (string $orc, Contact $reques
                 name: "Str"
             ),
         ),
-        fn() => new Organisation(
+        fn() => new Organization(
             name: "HP Str",
             agbcode: "09332211",
             source: "VEKTIS"
