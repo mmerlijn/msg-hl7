@@ -43,7 +43,7 @@ PID|1||900073962^^^NLMINBIZA^NNNLD~ZP100120391^^^ZorgDomein^VN||Testpatiënt - v
            ),
            dob: new \Carbon\Carbon("1990-12-31"),
            address: new \mmerlijn\msgRepo\Address(
-               postcode: "9999 ZZ",
+               postcode: "9999ZZ",
                city: "'s-Gravenhage",
                street: "2e Antonie Heinsiusstraat",
                building_nr: "3456",
