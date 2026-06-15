@@ -24,18 +24,18 @@ class PID extends Segment implements SegmentInterface
         $this->setData("L", 5, 0, 6);
         //set patient identifier
         $counterLocal = 0;
-        $counter = 0;
+        $counterAlternative = 0;
         foreach ($msg->patient->ids as $k => $id) {
-            if ($id->authority == 'SALT' and $k!=0) {
+            if (!$id->alternative) {
                 $this->setData($id->id, 4, $counterLocal);
                 $this->setData($id->authority, 4, $counterLocal, 3);
                 $this->setData($id->code, 4, $counterLocal, 4);
                 $counterLocal++;
             } else {
-                $this->setData($id->id, 3, $counter);
-                $this->setData($id->authority, 3, $counter, 3);
-                $this->setData($id->code, 3, $counter, 4);
-                $counter++;
+                $this->setData($id->id, 3, $counterAlternative);
+                $this->setData($id->authority, 3, $counterAlternative, 3);
+                $this->setData($id->code, 3, $counterAlternative, 4);
+                $counterAlternative++;
             }
         }
         //set patient name
