@@ -212,7 +212,7 @@ class Hl7
                 foreach ($msg->patient->comments as $id => $comment) {
                     if ($this->segments[$k]?->name != "NTE") {
                         //make space for NTE after PID
-                        array_splice($this->segments, $k, 0, [(new NTE)->setComment($id, $comment)]);
+                        array_splice($this->segments, $k, 0, [new NTE()->setComment($id, $comment)]);
                     } else {
                         $this->segments[$k]->setComment($id, $comment);
                     }
@@ -221,17 +221,19 @@ class Hl7
             }
         }
         if (!$this->hasSegment("PV1")) {
-            $this->segments[] = (new PV1("PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V"))->setMsg($msg);
+            $this->segments[] = new PV1("PV1|1|O|||||||||||||||||||||||||||||||||||||||||||||||||V")->setMsg($msg);
         } else {
             $this->segments[$this->findSegmentKey("PV1")]->setMsg($msg);
         }
         if (!$this->hasSegment("PV2")) {
-            $this->segments[] = (new PV2("PV2|||"))->setMsg($msg);
+            $this->segments[] = new PV2("PV2|||")->setMsg($msg);
         } else {
             $this->segments[$this->findSegmentKey("PV2")]->setMsg($msg);
         }
         if (!$this->hasSegment("IN1")) {
-            $this->segments[] = (new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||"))->setMsg($msg);
+            $pos = $this->findSegmentKey("PV2"); //TODO Look for every segment if it exists: Hl7 error with absence of PV2 and IN1
+            array_splice($this->segments, $pos+1, 0, [new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||")->setMsg($msg)]);
+        //    $this->segments[] = new IN1("IN1|1|^null||||||||||||||||||||||||||||||||||")->setMsg($msg);
         } else {
             $this->segments[$this->findSegmentKey("IN1")]->setMsg($msg);
         }
@@ -250,28 +252,28 @@ class Hl7
             $this->segments[] = (new OBR)->setRequest($msg, $req_k);
             if ($request->hasComments()) {
                 foreach ($request->comments as $id => $comment) {
-                    $this->segments[] = (new NTE())->setComment($id, $comment);
+                    $this->segments[] = new NTE()->setComment($id, $comment);
                 }
             }
             foreach ($request?->observations ?? [] as $obs_k => $observation) {
-                $this->segments[] = (new OBX())->setObservation($msg, $req_k, $obs_k);
+                $this->segments[] = new OBX()->setObservation($msg, $req_k, $obs_k);
                 if ($observation->hasComments()) {
                     foreach ($observation->comments as $id => $comment) {
-                        $this->segments[] = (new NTE())->setComment($id, $comment);
+                        $this->segments[] = new NTE()->setComment($id, $comment);
                     }
                 }
             }
             if (in_array("SPM", $this->useSegments) && $request->hasSpecimens()) {
                 foreach ($request->specimens as $sp_k => $specimen) {
-                    $this->segments[] = (new SPM())->setSpecimen($msg, $req_k, $sp_k);
+                    $this->segments[] = new SPM()->setSpecimen($msg, $req_k, $sp_k);
                 }
             }
         }
         if (in_array("BLG", $this->useSegments)) {
-            $this->segments[] = (new BLG("BLG||CH"))->setMsg($msg);
+            $this->segments[] = new BLG("BLG||CH")->setMsg($msg);
         }
         if (in_array("LBS", $this->useSegments)) {
-            $this->segments[] = (new LBS("LBS|1|GOED"))->setMsg($msg);
+            $this->segments[] = new LBS("LBS|1|GOED")->setMsg($msg);
         }
         return $this;
     }
