@@ -23,6 +23,19 @@ IN1|1|^null|0001^^^VEKTIS^UZOVI|ZorgVerzekeraar ZDNL||||||||||||||||||||||||||||
             )
         )
     ],
+    ["MSH|^~\&|ZorgDomein||Labtrain|SALT|20251112125133+0100||OML^O21^OML_O21|d0a06274854e4824a8a4|P|2.5.1|||||NLD|8859/1
+IN1|1|^null|0^^^VEKTIS^UZOVI|ZorgVerzekeraar ZDNL||||||||||||||||||||||||||||||||12345678901234
+",
+        fn() => new Msg(
+            patient: new \mmerlijn\msgRepo\Patient(
+                insurance: new \mmerlijn\msgRepo\Insurance(
+                    uzovi: "",
+                    policy_nr: "12345678901234",
+                    company_name: "ZorgVerzekeraar ZDNL",
+                )
+            )
+        )
+    ],
 ]);
 it('can write IN1', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
 
@@ -44,6 +57,18 @@ it('can write IN1', function (\mmerlijn\msgRepo\Msg $msg, string $expectedPid) {
             )
         ),
         "IN1|1|^null|0001^^^VEKTIS^UZOVI|ZorgVerzekeraar ZDNL||||||||||||||||||||||||||||||||12345678901234"
+    ],
+    [
+        fn() => new Msg(
+            patient: new \mmerlijn\msgRepo\Patient(
+                insurance: new \mmerlijn\msgRepo\Insurance(
+                    uzovi: "0",
+                    policy_nr: "12345678901234",
+                    company_name: "ZorgVerzekeraar ZDNL",
+                )
+            )
+        ),
+        "IN1|1|^null||ZorgVerzekeraar ZDNL||||||||||||||||||||||||||||||||12345678901234"
     ],
 ]);
 
